@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEditor;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,6 +14,15 @@ public class GameManager : MonoBehaviour
         {
             int scene = SceneManager.GetActiveScene().buildIndex;
             SceneManager.LoadScene(scene);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            #if UNITY_EDITOR
+            EditorApplication.ExitPlaymode();
+            #else
+            Application.Quit();
+            #endif
         }
     }
 
