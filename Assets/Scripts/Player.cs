@@ -47,7 +47,7 @@ public class Player : MonoBehaviour
     private GameObject _shieldVisual = null;
     
     [SerializeField]
-    private float fireRate = 0.5f;
+    private float _fireRate = 0.5f;
     private float _canFire;
 
     [SerializeField]
@@ -145,7 +145,7 @@ public class Player : MonoBehaviour
 
     void FireLaser()
     {
-        _canFire = Time.time + fireRate;
+        _canFire = Time.time + _fireRate;
         PlayClip(_laserClip);
 
         if (_isTripleShotActive == true)
