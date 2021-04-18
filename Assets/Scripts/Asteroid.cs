@@ -8,6 +8,8 @@ public class Asteroid : MonoBehaviour
     private float _rotSpeed = 5f;
     [SerializeField]
     private GameObject _explosionPrefab = null;
+    [SerializeField]
+    private float _destroyDelay = 0.5f;
     private SpawnManager _spawnManager = null;
 
     void Start()
@@ -31,7 +33,7 @@ public class Asteroid : MonoBehaviour
             Destroy(other.gameObject);
             Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
             _spawnManager.StartSpawning();
-            Destroy(gameObject, 0.5f);
+            Destroy(gameObject, _destroyDelay);
         }
     }
 }

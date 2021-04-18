@@ -11,11 +11,18 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private Transform _enemyContainer = null;
     [SerializeField]
+    private float _horizontalLimits = 8f;
+    [SerializeField]
+    private float _spawnStartDelay = 3f;
+    [SerializeField]
+    private float _enemySpawnDelay = 5f;
+    [SerializeField]
+    private int _minPowerUpSpawnDelay = 3, _maxPowerUpSpawnDelay = 8;
+    [SerializeField]
     private GameObject[] _powerUpPrefabs = null;
 
     private bool _stopSpawning = false;
 
-    // Start is called before the first frame update
     public void StartSpawning()
     {
         StartCoroutine(SpawnEnemyRoutine());
@@ -24,26 +31,26 @@ public class SpawnManager : MonoBehaviour
 
     IEnumerator SpawnEnemyRoutine()
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(_spawnStartDelay);
 
         while (_stopSpawning == false)
         {
-            float randomX = Random.Range(-8f, 8f);
+            float randomX = Random.Range(-_horizontalLimits, _horizontalLimits);
             Vector2 spawnLocation = new Vector2(randomX, _spawnPoint.position.y);
 
             Instantiate(_enemyPrefab, spawnLocation, Quaternion.identity, _enemyContainer);
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(_enemySpawnDelay);
         }
     }
 
     IEnumerator SpawnPowerUpRoutine()
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(_spawnStartDelay);
 
         while (_stopSpawning == false)
         {
-            float randomDelay = Random.Range(3, 8);
-            float randomX = Random.Range(-8f, 8f);
+            float randomDelay = Random.Range(_minPowerUpSpawnDelay, _maxPowerUpSpawnDelay);
+            float randomX = Random.Range(-_horizontalLimits, _horizontalLimits);
             Vector2 spawnLocation = new Vector2(randomX, _spawnPoint.position.y);
 
             Instantiate(_powerUpPrefabs[Random.Range(0, _powerUpPrefabs.Length)], spawnLocation, Quaternion.identity);

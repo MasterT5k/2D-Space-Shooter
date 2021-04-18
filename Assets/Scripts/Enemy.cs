@@ -2,20 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
+[RequireComponent(typeof(Collider2D))]
 public class Enemy : MonoBehaviour
 {
+    [Header("Movement Settings")]
     [SerializeField]
     private float _speed = 4f;
     [SerializeField]
     private float _horizontalLimits = 8;
     [SerializeField]
     private float _verticalLimits = -8f;
-    private Player _player = null;
-    private Animator _anim = null;
+
+    [Header("Death Settings")]
+    [SerializeField]
+    private float _destroyDelay = 2.6f;
     [SerializeField]
     private AudioClip _explosionClip = null;
-    private AudioSource _source = null;
     private bool _isDead = false;
+
+    [Header("Shooting Settings")]
     [SerializeField]
     private GameObject _laserPrefab;
     [SerializeField]
@@ -26,17 +32,13 @@ public class Enemy : MonoBehaviour
     private int _minFireDelay = 3, _maxFireDelay = 8;
     private float _canFire;
 
+    private AudioSource _source = null;
+    private Player _player = null;
+    private Animator _anim = null;
+
     void Start()
     {
         _source = GetComponent<AudioSource>();
-        if (_source == null)
-        {
-            Debug.Log("Audio Source is NULL");
-        }
-        else
-        {
-            _source.clip = _explosionClip;
-        }
 
         _player = GameObject.Find("Player").GetComponent<Player>();
 
@@ -56,10 +58,10 @@ public class Enemy : MonoBehaviour
 
         transform.Translate(Vector2.down * _speed * Time.deltaTime);
 
-        if (transform.position.y < -5.5f)
+        if (transform.position.y < _verticalLimits)
         {
-            float randomX = Random.Range(-8f, 8f);
-            Vector2 spawnPoint = new Vector2(randomX, 8f);
+            float randomX = Random.Range(-_horizontalLimits, _horizontalLimits);
+            Vector2 spawnPoint = new Vector2(randomX, -_verticalLimits);
             transform.position = spawnPoint;
         }
     }
@@ -83,14 +85,14 @@ public class Enemy : MonoBehaviour
 
             _anim.SetTrigger("Destroyed");
             _speed = 0;
-            Destroy(gameObject, 2.6f);
+            Destroy(gameObject, _destroyDelay);
         }
 
         if (other.tag == "Player")
         {
             if (_player != null)
             {
-                _player.ChangeLives(-1);
+                _player.ChangeLives();
             }
 
             if (_isDead == false)
@@ -101,7 +103,7 @@ public class Enemy : MonoBehaviour
 
             _anim.SetTrigger("Destroyed");
             _speed = 0;
-            Destroy(gameObject, 2.6f);
+            Destroy(gameObject, _destroyDelay);
         }
     }
 

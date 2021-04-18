@@ -7,6 +7,8 @@ public class PowerUp : MonoBehaviour
     [SerializeField]
     private float _speed = 4f;
     [SerializeField]
+    private float _verticalLimit = -5.5f;
+    [SerializeField]
     private AudioClip _powerUpClip = null;
 
     [SerializeField]
@@ -22,7 +24,7 @@ public class PowerUp : MonoBehaviour
     {
         transform.Translate(Vector2.down * _speed * Time.deltaTime);
 
-        if (transform.position.y < -5.5f)
+        if (transform.position.y < _verticalLimit)
         {
             Destroy(gameObject);
         }

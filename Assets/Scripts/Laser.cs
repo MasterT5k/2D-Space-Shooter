@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Collider2D))]
 public class Laser : MonoBehaviour
 {
     [SerializeField]
     private float _speed = 8f;
     [SerializeField]
     private float _yDestroyDistance = 12f;
+    [SerializeField]
+    private int _damage = -1;
     private bool _isEnemyLaser = false;
 
     void Update()
@@ -69,7 +72,7 @@ public class Laser : MonoBehaviour
 
             if (player != null)
             {
-                player.ChangeLives(-1);
+                player.ChangeLives(_damage);
             }
 
             Destroy(this.gameObject);

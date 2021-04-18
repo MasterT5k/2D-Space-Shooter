@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class Explosion : MonoBehaviour
 {
+    [SerializeField]
+    private float _destroyDelay = 3f;
+
     void Start()
     {
-        Destroy(gameObject, 3f);
+        Destroy(gameObject, _destroyDelay);
     }
 }

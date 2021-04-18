@@ -156,6 +156,11 @@ MonoBehaviour:
     type: 3}
   _spawnPoint: {fileID: 810181754}
   _enemyContainer: {fileID: 1457353598}
+  _horizontalLimits: 8
+  _spawnStartDelay: 3
+  _enemySpawnDelay: 5
+  _minPowerUpSpawnDelay: 3
+  _maxPowerUpSpawnDelay: 8
   _powerUpPrefabs:
   - {fileID: 687521639106952998, guid: b2867d125d20d684b8a5265e2b83a79b, type: 3}
   - {fileID: 8761980829958863493, guid: fdd93e08263e89842ad2c4d8e0834b46, type: 3}
@@ -479,18 +484,17 @@ MonoBehaviour:
   _leftBounds: -11.3
   _rightBounds: 11.3
   _wrapHorizontal: 1
+  _fireRate: 0.5
   _spawnPoint: {fileID: 1433808284}
   _laserPrefab: {fileID: 8664767096302091753, guid: 24218989365978b4fb5b5a10d783c44d,
     type: 3}
+  _laserClip: {fileID: 8300000, guid: 75676f361bdfeaf41a46623e95df3dbc, type: 3}
+  _powerUpDuration: 5
   _tripleLaserPrefab: {fileID: 387374283099711544, guid: 805aa8bac3102684e8b16ff3db2f5383,
     type: 3}
-  _laserClip: {fileID: 8300000, guid: 75676f361bdfeaf41a46623e95df3dbc, type: 3}
-  _lives: 3
-  _score: 0
-  _speedMultiplier: 2
-  _isShieldActive: 0
   _shieldVisual: {fileID: 1537565632}
-  _fireRate: 0.5
+  _speedMultiplier: 2
+  _lives: 3
   _engineFires:
   - {fileID: 456737790}
   - {fileID: 204686644}
@@ -834,6 +838,7 @@ MonoBehaviour:
   _rotSpeed: 5
   _explosionPrefab: {fileID: 8466023616670967949, guid: 181d814d6627ea94289f126f0223c65c,
     type: 3}
+  _destroyDelay: 0.5
 --- !u!58 &773860180
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1500,6 +1505,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 9fe6f40efddf0b64fb68a3382b14a4db, type: 3}
   _gameOverText: {fileID: 851501802}
   _restartText: {fileID: 658498724}
+  _flickerDelay: 0.5
 --- !u!114 &987248874
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -16,6 +16,8 @@ public class UIManager : MonoBehaviour
     private Text _gameOverText = null;
     [SerializeField]
     private Text _restartText = null;
+    [SerializeField]
+    private float _flickerDelay = 0.5f;
 
     private GameManager _gameManager = null;
 
@@ -52,9 +54,9 @@ public class UIManager : MonoBehaviour
         while (true)
         {
             _gameOverText.gameObject.SetActive(true);
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(_flickerDelay);
             _gameOverText.gameObject.SetActive(false);
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(_flickerDelay);
         }
     }
 }

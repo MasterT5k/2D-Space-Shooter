@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
+[RequireComponent(typeof(BoxCollider2D))]
 public class Player : MonoBehaviour
 {
+    [Header("Movement Settings")]
     [SerializeField]
     private float _speed = 5f;
     [SerializeField]
@@ -17,56 +19,63 @@ public class Player : MonoBehaviour
     private float _rightBounds = 11.3f;
     [SerializeField]
     private bool _wrapHorizontal = true;
+
+    [Header("Shooting Settings")]
+    [SerializeField]
+    private float _fireRate = 0.5f;
     [SerializeField]
     private Transform _spawnPoint = null;
-
     [SerializeField]
     private GameObject _laserPrefab = null;
     [SerializeField]
-    private GameObject _tripleLaserPrefab = null;
-    [SerializeField]
     private AudioClip _laserClip = null;
-    private AudioSource _source = null;
+    private float _canFire;
 
+    [Header("PowerUp Up Settings")]
+    [SerializeField]
+    private float _powerUpDuration = 5f;
+    [SerializeField]
+    private GameObject _tripleLaserPrefab = null;
+    private bool _isTripleShotActive = false;
+    private float _tripleShotDuration;
+    
+    [SerializeField]
+    private GameObject _shieldVisual = null;
+    private bool _isShieldActive = false;
+
+    [SerializeField]
+    private float _speedMultiplier = 2f;
+    private bool _isSpeedBoostActive = false;
+    private float _speedBoostDuration;
+
+
+    [Header("Health Settings")]
     [SerializeField]
     private int _lives = 3;
     [SerializeField]
-    private int _score = 0;
-
-    private bool _isTripleShotActive = false;
-    private float _tripleShotDuration = 5f;
-
-    private bool _isSpeedBoostActive = false;
-    [SerializeField]
-    private float _speedMultiplier = 2f;
-    private float _speedBoostDuration = 5f;
-
-    [SerializeField]
-    private bool _isShieldActive = false;
-    [SerializeField]
-    private GameObject _shieldVisual = null;
-    
-    [SerializeField]
-    private float _fireRate = 0.5f;
-    private float _canFire;
-
-    [SerializeField]
     private GameObject[] _engineFires = null;
 
+
+    private int _score = 0;
+    private AudioSource _source = null;
     private SpawnManager _spawnManager = null;
     private UIManager _uIManager = null;
 
 
     void Start()
     {
+        Init();
+    }
+
+    void Init()
+    {
         transform.position = new Vector2(0, 0);
+
+        _tripleShotDuration = _powerUpDuration;
+        _speedBoostDuration = _powerUpDuration;
 
         _shieldVisual.SetActive(false);
         _source = GetComponent<AudioSource>();
-        if (_source == null)
-        {
-            Debug.Log("Audio Source is NULL");
-        }
 
         for (int i = 0; i < _engineFires.Length; i++)
         {
@@ -159,7 +168,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void ChangeLives(int amount)
+    public void ChangeLives(int amount = -1)
     {
         if (_isShieldActive == true)
         {
@@ -206,7 +215,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            _tripleShotDuration += 5f;
+            _tripleShotDuration += _powerUpDuration;
         }        
     }
 
@@ -218,7 +227,7 @@ public class Player : MonoBehaviour
             _tripleShotDuration--;
         }
 
-        _tripleShotDuration = 5f;
+        _tripleShotDuration = _powerUpDuration;
         _isTripleShotActive = false;
         Debug.Log("Triple Shot Off!");
     }
@@ -233,7 +242,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            _speedBoostDuration += 5f;
+            _speedBoostDuration += _powerUpDuration;
         }
     }
 
@@ -245,7 +254,7 @@ public class Player : MonoBehaviour
             _speedBoostDuration--;
         }
 
-        _speedBoostDuration = 5f;
+        _speedBoostDuration = _powerUpDuration;
         _isSpeedBoostActive = false;
         Debug.Log("Speed Boost Off!");
     }
