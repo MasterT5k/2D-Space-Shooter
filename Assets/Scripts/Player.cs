@@ -126,16 +126,16 @@ public class Player : MonoBehaviour
 
         if (_isThrusterActive == true)
         {
+            _elapsedTime += Time.deltaTime;
+
             if (_elapsedTime > _thrusterBurnLength)
             {
                 _elapsedTime = _thrusterBurnLength;
                 _isThrusterDown = true;
                 _isThrusterActive = false;
                 _speed = _baseSpeed;
-                return;
             }
 
-            _elapsedTime += Time.deltaTime;
             _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
         }
         else if (_isThrusterActive == false && _elapsedTime > 0)
