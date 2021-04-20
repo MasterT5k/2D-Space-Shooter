@@ -130,6 +130,7 @@ public class Player : MonoBehaviour
             {
                 _elapsedTime = _thrusterBurnLength;
                 _isThrusterDown = true;
+                _isThrusterActive = false;
                 _speed = _baseSpeed;
                 return;
             }
