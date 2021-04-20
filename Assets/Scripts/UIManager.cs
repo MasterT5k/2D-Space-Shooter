@@ -13,6 +13,10 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private Sprite[] _liveSprites = null;
     [SerializeField]
+    private Slider _thrusterSlider;
+    //[SerializeField]
+    private Text _ammoText;
+    [SerializeField]
     private Text _gameOverText = null;
     [SerializeField]
     private Text _restartText = null;
@@ -47,6 +51,20 @@ public class UIManager : MonoBehaviour
     public void UpdateScore(int score)
     {
         _scoreText.text = "Score: " + score;
+    }
+
+    public void ChangeAmmo(int ammo)
+    {
+        _ammoText.text = "Ammo: " + ammo + "/15";
+    }
+
+    public void UpdateThrusterBar(float elapsedTime, float burnLength)
+    {
+        if (_thrusterSlider.maxValue != burnLength)
+        {
+            _thrusterSlider.maxValue = burnLength;
+        }
+        _thrusterSlider.value = burnLength -= elapsedTime;
     }
 
     IEnumerator GameOverFlickerRoutine()

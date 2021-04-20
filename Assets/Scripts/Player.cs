@@ -20,6 +20,15 @@ public class Player : MonoBehaviour
     [SerializeField]
     private bool _wrapHorizontal = true;
 
+    private float _baseSpeed;
+    [SerializeField]
+    private float _thrusterBoost = 2f;
+    [SerializeField]
+    private float _thrusterBurnLength = 5;
+    private float _elapsedTime = 0;
+    private bool _isThrusterActive = false;
+    private bool _isThrusterDown = false;
+
     [Header("Shooting Settings")]
     [SerializeField]
     private float _fireRate = 0.5f;
@@ -65,6 +74,9 @@ public class Player : MonoBehaviour
     void Start()
     {
         Init();
+
+        _baseSpeed = _speed;
+        _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
     }
 
     void Init()
@@ -100,6 +112,44 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.LeftShift) && _isThrusterDown == false)
+        {
+            _speed += _thrusterBoost;
+            _isThrusterActive = true;
+        }
+
+        if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            _speed = _baseSpeed;
+            _isThrusterActive = false;
+        }
+
+        if (_isThrusterActive == true)
+        {
+            if (_elapsedTime > _thrusterBurnLength)
+            {
+                _elapsedTime = _thrusterBurnLength;
+                _isThrusterDown = true;
+                _speed = _baseSpeed;
+                return;
+            }
+
+            _elapsedTime += Time.deltaTime;
+            _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
+        }
+        else if (_isThrusterActive == false && _elapsedTime > 0)
+        {
+            _elapsedTime -= Time.deltaTime;
+
+            if (_elapsedTime < 0)
+            {
+                _elapsedTime = 0;
+                _isThrusterDown = false;
+            }
+
+            _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
+        }
+
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire)
         {
             FireLaser();
