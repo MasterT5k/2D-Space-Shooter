@@ -63,7 +63,8 @@ public class Player : MonoBehaviour
 
     [Header("Health Settings")]
     [SerializeField]
-    private int _lives = 3;
+    private int _maxLives = 3;
+    private int _lives;
     [SerializeField]
     private GameObject[] _engineFires = null;
 
@@ -78,9 +79,6 @@ public class Player : MonoBehaviour
     {
         Init();
 
-        _currentAmmo = _maxAmmo;
-
-        _uIManager.UpdateAmmo(_currentAmmo, _maxAmmo);
     }
 
     void Init()
@@ -88,6 +86,7 @@ public class Player : MonoBehaviour
         transform.position = new Vector2(0, 0);
 
         _baseSpeed = _speed;
+        _currentAmmo = _maxAmmo;
         _tripleShotDuration = _powerUpDuration;
         _speedBoostDuration = _powerUpDuration;
 
@@ -114,6 +113,7 @@ public class Player : MonoBehaviour
         _uIManager.UpdateScore(_score);
         _uIManager.UpdateLivesImage(_lives);
         _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
+        _uIManager.UpdateAmmo(_currentAmmo, _maxAmmo);
     }
 
     void Update()
@@ -239,19 +239,27 @@ public class Player : MonoBehaviour
         }
 
         _lives += amount;
+
+        if (_lives >)
+        {
+
+        }
+
         _uIManager.UpdateLivesImage(_lives);
 
-        if (_lives == 2)
+        if (_lives == 3)
+        {
+
+        }
+        else if (_lives == 2)
         {
             _engineFires[0].SetActive(true);
         }
-
-        if (_lives == 1)
+        else if (_lives == 1)
         {
             _engineFires[1].SetActive(true);
         }
-
-        if (_lives < 1)
+        else if (_lives < 1)
         {
             Debug.Log("BOOM!");
             _spawnManager.StopSpawning();
