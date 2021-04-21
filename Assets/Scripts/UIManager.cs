@@ -14,7 +14,7 @@ public class UIManager : MonoBehaviour
     private Sprite[] _liveSprites = null;
     [SerializeField]
     private Slider _thrusterSlider;
-    //[SerializeField]
+    [SerializeField]
     private Text _ammoText;
     [SerializeField]
     private Text _gameOverText = null;
@@ -50,12 +50,12 @@ public class UIManager : MonoBehaviour
 
     public void UpdateScore(int score)
     {
-        _scoreText.text = "Score: " + score;
+        _scoreText.text = "Score:" + score;
     }
 
-    public void ChangeAmmo(int ammo)
+    public void UpdateAmmo(int ammoRemaining, int maxAmmo)
     {
-        _ammoText.text = "Ammo: " + ammo + "/15";
+        _ammoText.text = "Ammo:" + ammoRemaining + "/" + maxAmmo;
     }
 
     public void UpdateThrusterBar(float elapsedTime, float burnLength)

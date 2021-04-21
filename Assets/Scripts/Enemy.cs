@@ -79,7 +79,7 @@ public class Enemy : MonoBehaviour
 
             if (_isDead == false)
             {
-                _source.Play();
+                PlayClip(_explosionClip);
                 _isDead = true;
             }
 

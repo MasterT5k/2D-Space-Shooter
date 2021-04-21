@@ -17,7 +17,8 @@ public class PowerUp : MonoBehaviour
     {
         TripleShot,
         SpeedBoost,
-        Shield
+        Shield,
+        Ammo
     }
 
     void Update()
@@ -48,6 +49,9 @@ public class PowerUp : MonoBehaviour
                         break;
                     case PowerUpType.Shield:
                         player.ShieldActivate();
+                        break;
+                    case PowerUpType.Ammo:
+                        player.ChangeAmmo();
                         break;
                     default:
                         Debug.Log("Power Up ID Not Found");

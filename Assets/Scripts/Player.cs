@@ -31,7 +31,9 @@ public class Player : MonoBehaviour
 
     [Header("Shooting Settings")]
     [SerializeField]
-    private float _fireRate = 0.5f;
+    private float _fireRate = 0.25f;
+    [SerializeField]
+    private int _maxAmmo = 15;
     [SerializeField]
     private Transform _spawnPoint = null;
     [SerializeField]
@@ -39,6 +41,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private AudioClip _laserClip = null;
     private float _canFire;
+    private int _currentAmmo;
 
     [Header("PowerUp Up Settings")]
     [SerializeField]
@@ -75,14 +78,16 @@ public class Player : MonoBehaviour
     {
         Init();
 
-        _baseSpeed = _speed;
-        _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
+        _currentAmmo = _maxAmmo;
+
+        _uIManager.UpdateAmmo(_currentAmmo, _maxAmmo);
     }
 
     void Init()
     {
         transform.position = new Vector2(0, 0);
 
+        _baseSpeed = _speed;
         _tripleShotDuration = _powerUpDuration;
         _speedBoostDuration = _powerUpDuration;
 
@@ -108,9 +113,21 @@ public class Player : MonoBehaviour
 
         _uIManager.UpdateScore(_score);
         _uIManager.UpdateLivesImage(_lives);
+        _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
     }
 
     void Update()
+    {
+
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire && _currentAmmo > 0)
+        {
+            FireLaser();
+        }
+
+        CalculateMovement();
+    }
+
+    private void CalculateMovement()
     {
         if (Input.GetKeyDown(KeyCode.LeftShift) && _isThrusterDown == false)
         {
@@ -151,16 +168,6 @@ public class Player : MonoBehaviour
             _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire)
-        {
-            FireLaser();
-        }
-
-        CalculateMovement();
-    }
-
-    private void CalculateMovement()
-    {
         float hInput = Input.GetAxis("Horizontal");
         float vInput = Input.GetAxis("Vertical");
         Vector2 direction = new Vector2(hInput, vInput);
@@ -216,6 +223,8 @@ public class Player : MonoBehaviour
         else
         {
             Instantiate(_laserPrefab, _spawnPoint.position, Quaternion.identity);
+            _currentAmmo--;
+            _uIManager.UpdateAmmo(_currentAmmo, _maxAmmo);
         }
     }
 
@@ -323,5 +332,12 @@ public class Player : MonoBehaviour
     public void PlayClip(AudioClip clip)
     {
         _source.PlayOneShot(clip);
+    }
+
+    public void ChangeAmmo()
+    {
+        _currentAmmo = _maxAmmo;
+
+        _uIManager.UpdateAmmo(_currentAmmo, _maxAmmo);
     }
 }
