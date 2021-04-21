@@ -77,6 +77,8 @@ public class Player : MonoBehaviour
 
     void Start()
     {
+        _lives = _maxLives;
+
         Init();
 
     }
@@ -230,7 +232,7 @@ public class Player : MonoBehaviour
 
     public void ChangeLives(int amount = -1)
     {
-        if (_isShieldActive == true)
+        if (_isShieldActive == true && amount < 0)
         {
             _isShieldActive = false;
             _shieldVisual.SetActive(false);
@@ -240,24 +242,42 @@ public class Player : MonoBehaviour
 
         _lives += amount;
 
-        if (_lives >)
+        if (_lives > _maxLives)
         {
-
+            _lives = _maxLives;
         }
 
         _uIManager.UpdateLivesImage(_lives);
 
         if (_lives == 3)
         {
+            if (_engineFires[0].activeInHierarchy == true)
+            {
+                _engineFires[0].SetActive(false);
+            }
 
+            if (_engineFires[1].activeInHierarchy == true)
+            {
+                _engineFires[1].SetActive(false);
+            }
         }
         else if (_lives == 2)
         {
             _engineFires[0].SetActive(true);
+
+            if (_engineFires[1].activeInHierarchy == true)
+            {
+                _engineFires[1].SetActive(false);
+            }
         }
         else if (_lives == 1)
         {
             _engineFires[1].SetActive(true);
+
+            if (_engineFires[0].activeInHierarchy == false)
+            {
+                _engineFires[0].SetActive(true);
+            }
         }
         else if (_lives < 1)
         {

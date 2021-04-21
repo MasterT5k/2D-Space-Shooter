@@ -165,7 +165,8 @@ MonoBehaviour:
   - {fileID: 687521639106952998, guid: b2867d125d20d684b8a5265e2b83a79b, type: 3}
   - {fileID: 8761980829958863493, guid: fdd93e08263e89842ad2c4d8e0834b46, type: 3}
   - {fileID: 745946380151580562, guid: c9fd9dfb494b441438676ed9a04fa421, type: 3}
-  - {fileID: 3891675221365393455, guid: 44bdea8c7c8f48340a32ff3d90c73189, type: 3}
+  - {fileID: 6003890646449019135, guid: 44bdea8c7c8f48340a32ff3d90c73189, type: 3}
+  - {fileID: 927285428592891060, guid: 0b7fec7079bd6f549b1f1a0ad1c8e30e, type: 3}
 --- !u!4 &7220206
 Transform:
   m_ObjectHideFlags: 0
@@ -498,7 +499,7 @@ MonoBehaviour:
     type: 3}
   _shieldVisual: {fileID: 1537565632}
   _speedMultiplier: 2
-  _lives: 3
+  _maxLives: 3
   _engineFires:
   - {fileID: 456737790}
   - {fileID: 204686644}
@@ -2617,77 +2618,3 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1954188667}
   m_CullTransparentMesh: 1
---- !u!1001 &5672995153325855656
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 4114780709416093679, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 11
-      objectReference: {fileID: 0}
-    - target: {fileID: 4114780709416093679, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 4.45
-      objectReference: {fileID: 0}
-    - target: {fileID: 4114780709416093679, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 7.99
-      objectReference: {fileID: 0}
-    - target: {fileID: 4114780709416093679, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4114780709416093679, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4114780709416093679, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4114780709416093679, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4114780709416093679, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4114780709416093679, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4114780709416093679, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4114780709416093679, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6003890646449019135, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_Name
-      value: Ammo Power Up
-      objectReference: {fileID: 0}
-    - target: {fileID: 6003890646449019135, guid: 44bdea8c7c8f48340a32ff3d90c73189,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 44bdea8c7c8f48340a32ff3d90c73189, type: 3}

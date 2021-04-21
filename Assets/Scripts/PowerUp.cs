@@ -10,6 +10,8 @@ public class PowerUp : MonoBehaviour
     private float _verticalLimit = -5.5f;
     [SerializeField]
     private AudioClip _powerUpClip = null;
+    [SerializeField]
+    private int _healAmount = 1;
 
     [SerializeField]
     private PowerUpType _powerUpType = PowerUpType.TripleShot;
@@ -18,7 +20,8 @@ public class PowerUp : MonoBehaviour
         TripleShot,
         SpeedBoost,
         Shield,
-        Ammo
+        Ammo,
+        Health
     }
 
     void Update()
@@ -52,6 +55,9 @@ public class PowerUp : MonoBehaviour
                         break;
                     case PowerUpType.Ammo:
                         player.ChangeAmmo();
+                        break;
+                    case PowerUpType.Health:
+                        player.ChangeLives(_healAmount);
                         break;
                     default:
                         Debug.Log("Power Up ID Not Found");
