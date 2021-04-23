@@ -163,8 +163,8 @@ MonoBehaviour:
   _maxPowerUpSpawnDelay: 8
   _powerUpPrefabs:
   - {fileID: 687521639106952998, guid: b2867d125d20d684b8a5265e2b83a79b, type: 3}
-  - {fileID: 8761980829958863493, guid: fdd93e08263e89842ad2c4d8e0834b46, type: 3}
   - {fileID: 745946380151580562, guid: c9fd9dfb494b441438676ed9a04fa421, type: 3}
+  - {fileID: 6003890646449019135, guid: 44bdea8c7c8f48340a32ff3d90c73189, type: 3}
   - {fileID: 6003890646449019135, guid: 44bdea8c7c8f48340a32ff3d90c73189, type: 3}
   - {fileID: 927285428592891060, guid: 0b7fec7079bd6f549b1f1a0ad1c8e30e, type: 3}
 --- !u!4 &7220206
@@ -497,7 +497,10 @@ MonoBehaviour:
   _powerUpDuration: 5
   _tripleLaserPrefab: {fileID: 387374283099711544, guid: 805aa8bac3102684e8b16ff3db2f5383,
     type: 3}
+  _shieldStrength: 3
   _shieldVisual: {fileID: 1537565632}
+  _secondShieldColor: {r: 1, g: 0, b: 0.5, a: 1}
+  _lastShieldColor: {r: 1, g: 0, b: 0.125, a: 1}
   _speedMultiplier: 2
   _maxLives: 3
   _engineFires:
@@ -1696,10 +1699,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1024, y: 576}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3

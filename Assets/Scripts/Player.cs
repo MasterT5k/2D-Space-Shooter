@@ -50,10 +50,20 @@ public class Player : MonoBehaviour
     private GameObject _tripleLaserPrefab = null;
     private bool _isTripleShotActive = false;
     private float _tripleShotDuration;
-    
+
+    [SerializeField]
+    [Range(1, 3)]
+    private int _shieldStrength = 3;
     [SerializeField]
     private GameObject _shieldVisual = null;
     private bool _isShieldActive = false;
+    private int _currentShieldStrength;
+    private SpriteRenderer _shieldRenderer = null;
+    private Color _fullShieldColor = Color.white;
+    [SerializeField]
+    private Color _secondShieldColor;
+    [SerializeField]
+    private Color _lastShieldColor;
 
     [SerializeField]
     private float _speedMultiplier = 2f;
@@ -63,6 +73,7 @@ public class Player : MonoBehaviour
 
     [Header("Health Settings")]
     [SerializeField]
+    [Range(1, 3)]
     private int _maxLives = 3;
     private int _lives;
     [SerializeField]
@@ -77,7 +88,7 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        _lives = _maxLives;
+        _shieldRenderer = _shieldVisual.GetComponent<SpriteRenderer>();
 
         Init();
 
@@ -89,6 +100,7 @@ public class Player : MonoBehaviour
 
         _baseSpeed = _speed;
         _currentAmmo = _maxAmmo;
+        _lives = _maxLives;
         _tripleShotDuration = _powerUpDuration;
         _speedBoostDuration = _powerUpDuration;
 
@@ -234,6 +246,15 @@ public class Player : MonoBehaviour
     {
         if (_isShieldActive == true && amount < 0)
         {
+            _currentShieldStrength--;
+
+            if (_currentShieldStrength > 0)
+            {
+                ChangeShield(_currentShieldStrength);
+                Debug.Log("Shield Hit!");
+                return;
+            }
+
             _isShieldActive = false;
             _shieldVisual.SetActive(false);
             Debug.Log("Shield Off!");
@@ -245,6 +266,10 @@ public class Player : MonoBehaviour
         if (_lives > _maxLives)
         {
             _lives = _maxLives;
+        }
+        else if (_lives < 0)
+        {
+            _lives = 0;
         }
 
         _uIManager.UpdateLivesImage(_lives);
@@ -354,6 +379,25 @@ public class Player : MonoBehaviour
             _isShieldActive = true;
             _shieldVisual.SetActive(true);
             Debug.Log("Shield On!");
+        }
+
+        _currentShieldStrength = _shieldStrength;
+        ChangeShield(_currentShieldStrength);
+    }
+
+    private void ChangeShield(int shieldStrength)
+    {
+        if (shieldStrength == 3)
+        {
+            _shieldRenderer.color = _fullShieldColor;
+        }
+        else if (shieldStrength == 2)
+        {
+            _shieldRenderer.color = _secondShieldColor;
+        }
+        else
+        {
+            _shieldRenderer.color = _lastShieldColor;
         }
     }
 
