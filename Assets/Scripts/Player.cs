@@ -79,7 +79,6 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject[] _engineFires = null;
 
-
     private int _score = 0;
     private AudioSource _source = null;
     private SpawnManager _spawnManager = null;
@@ -88,7 +87,6 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        _shieldRenderer = _shieldVisual.GetComponent<SpriteRenderer>();
 
         Init();
 
@@ -104,6 +102,8 @@ public class Player : MonoBehaviour
         _tripleShotDuration = _powerUpDuration;
         _speedBoostDuration = _powerUpDuration;
 
+
+        _shieldRenderer = _shieldVisual.GetComponent<SpriteRenderer>();
         _shieldVisual.SetActive(false);
         _source = GetComponent<AudioSource>();
 
@@ -259,6 +259,15 @@ public class Player : MonoBehaviour
             _shieldVisual.SetActive(false);
             Debug.Log("Shield Off!");
             return;
+        }
+
+        if (amount < 0)
+        {
+            CameraShake cameraShake = Camera.main.GetComponent<CameraShake>();
+            if (cameraShake != null)
+            {
+                cameraShake.ShakeCamera();
+            }
         }
 
         _lives += amount;
