@@ -71,6 +71,13 @@ public class Player : MonoBehaviour
     private float _speedBoostDuration;
 
 
+    [SerializeField]
+    private GameObject _homingMissilePrefab = null;
+    [SerializeField]
+    private int _numberOfMissiles = 4;
+    private int _currentMissiles;
+    private bool _isHomingMissileActive = false;
+
     [Header("Health Settings")]
     [SerializeField]
     [Range(1, 3)]
@@ -132,6 +139,17 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Tab) && _isHomingMissileActive == true)
+        {
+            GameObject missile = Instantiate(_homingMissilePrefab, _spawnPoint.position, Quaternion.identity);
+            missile.GetComponent<HomingMissile>().AssignTarget();
+            _currentMissiles--;
+            if (_currentMissiles < 1)
+            {
+                _currentMissiles = 0;
+                _isHomingMissileActive = false;
+            }
+        }
 
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire && _currentAmmo > 0)
         {
@@ -420,5 +438,11 @@ public class Player : MonoBehaviour
         _currentAmmo = _maxAmmo;
 
         _uIManager.UpdateAmmo(_currentAmmo, _maxAmmo);
+    }
+
+    public void ActivateHomingMissiles()
+    {
+        _isHomingMissileActive = true;
+        _currentMissiles = _numberOfMissiles;
     }
 }

@@ -84,6 +84,7 @@ public class Enemy : MonoBehaviour
             }
 
             _anim.SetTrigger("Destroyed");
+            gameObject.tag = "Untagged";
             _speed = 0;
             Destroy(gameObject, _destroyDelay);
         }
@@ -102,6 +103,7 @@ public class Enemy : MonoBehaviour
             }
 
             _anim.SetTrigger("Destroyed");
+            gameObject.tag = "Untagged";
             _speed = 0;
             Destroy(gameObject, _destroyDelay);
         }

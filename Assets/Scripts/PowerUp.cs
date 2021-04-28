@@ -21,7 +21,8 @@ public class PowerUp : MonoBehaviour
         SpeedBoost,
         Shield,
         Ammo,
-        Health
+        Health,
+        Missile
     }
 
     void Update()
@@ -58,6 +59,9 @@ public class PowerUp : MonoBehaviour
                         break;
                     case PowerUpType.Health:
                         player.ChangeLives(_healAmount);
+                        break;
+                    case PowerUpType.Missile:
+                        player.ActivateHomingMissiles();
                         break;
                     default:
                         Debug.Log("Power Up ID Not Found");
