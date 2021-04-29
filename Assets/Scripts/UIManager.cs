@@ -17,6 +17,8 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private Text _ammoText;
     [SerializeField]
+    private Text _missileText;
+    [SerializeField]
     private Text _gameOverText = null;
     [SerializeField]
     private Text _restartText = null;
@@ -56,6 +58,11 @@ public class UIManager : MonoBehaviour
     public void UpdateAmmo(int ammoRemaining, int maxAmmo)
     {
         _ammoText.text = "Ammo:" + ammoRemaining + "/" + maxAmmo;
+    }
+
+    public void UpdateMissile(int missilesRemaining, int maxMissiles)
+    {
+        _missileText.text = "Missiles:" + missilesRemaining + "/" + maxMissiles;
     }
 
     public void UpdateThrusterBar(float elapsedTime, float burnLength)

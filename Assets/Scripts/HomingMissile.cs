@@ -25,14 +25,7 @@ public class HomingMissile : MonoBehaviour
     {
         if (transform.position.y > _yDestroyDistance)
         {
-            if (this.gameObject.transform.parent != null)
-            {
-                Destroy(this.gameObject.transform.parent.gameObject);
-            }
-            else
-            {
-                Destroy(this.gameObject);
-            }
+            Destroy(this.gameObject);
         }
     }
 

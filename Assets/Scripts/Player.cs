@@ -20,7 +20,6 @@ public class Player : MonoBehaviour
     [SerializeField]
     private bool _wrapHorizontal = true;
 
-    private float _baseSpeed;
     [SerializeField]
     private float _thrusterBoost = 2f;
     [SerializeField]
@@ -96,14 +95,13 @@ public class Player : MonoBehaviour
     {
 
         Init();
-
+        _uIManager.UpdateMissile(_currentMissiles, _numberOfMissiles);
     }
 
     void Init()
     {
         transform.position = new Vector2(0, 0);
 
-        _baseSpeed = _speed;
         _currentAmmo = _maxAmmo;
         _lives = _maxLives;
         _tripleShotDuration = _powerUpDuration;
@@ -149,6 +147,7 @@ public class Player : MonoBehaviour
                 _currentMissiles = 0;
                 _isHomingMissileActive = false;
             }
+            _uIManager.UpdateMissile(_currentMissiles, _numberOfMissiles);
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire && _currentAmmo > 0)
@@ -169,7 +168,7 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.LeftShift))
         {
-            _speed = _baseSpeed;
+            _speed -= _thrusterBoost;
             _isThrusterActive = false;
         }
 
@@ -182,7 +181,7 @@ public class Player : MonoBehaviour
                 _elapsedTime = _thrusterBurnLength;
                 _isThrusterDown = true;
                 _isThrusterActive = false;
-                _speed = _baseSpeed;
+                _speed -= _thrusterBoost;
             }
 
             _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
@@ -444,5 +443,6 @@ public class Player : MonoBehaviour
     {
         _isHomingMissileActive = true;
         _currentMissiles = _numberOfMissiles;
+        _uIManager.UpdateMissile(_currentMissiles, _numberOfMissiles);
     }
 }
