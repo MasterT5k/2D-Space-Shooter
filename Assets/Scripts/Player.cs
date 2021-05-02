@@ -51,6 +51,12 @@ public class Player : MonoBehaviour
     private float _tripleShotDuration;
 
     [SerializeField]
+    private GameObject _omniShotPrefab = null;
+    [SerializeField]
+    private bool _isOmniShotActive = false;
+    private float _omniShotDuration;
+
+    [SerializeField]
     [Range(1, 3)]
     private int _shieldStrength = 3;
     [SerializeField]
@@ -93,9 +99,8 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-
+        _omniShotDuration = _powerUpDuration;
         Init();
-        _uIManager.UpdateMissile(_currentMissiles, _numberOfMissiles);
     }
 
     void Init()
@@ -109,6 +114,7 @@ public class Player : MonoBehaviour
 
 
         _shieldRenderer = _shieldVisual.GetComponent<SpriteRenderer>();
+        _fullShieldColor = _shieldRenderer.color;
         _shieldVisual.SetActive(false);
         _source = GetComponent<AudioSource>();
 
@@ -133,6 +139,7 @@ public class Player : MonoBehaviour
         _uIManager.UpdateLivesImage(_lives);
         _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
         _uIManager.UpdateAmmo(_currentAmmo, _maxAmmo);
+        _uIManager.UpdateMissile(_currentMissiles, _numberOfMissiles);
     }
 
     void Update()
@@ -249,7 +256,10 @@ public class Player : MonoBehaviour
         if (_isTripleShotActive == true)
         {
             Instantiate(_tripleLaserPrefab, _spawnPoint.position, Quaternion.identity);
-
+        }
+        else if (_isOmniShotActive == true)
+        {
+            Instantiate(_omniShotPrefab, transform.position, Quaternion.identity);
         }
         else
         {
@@ -355,7 +365,13 @@ public class Player : MonoBehaviour
         else
         {
             _tripleShotDuration += _powerUpDuration;
-        }        
+        }
+
+        if (_isOmniShotActive == true)
+        {
+            _isOmniShotActive = false;
+            _omniShotDuration = 0;
+        }
     }
 
     IEnumerator TripleShotPowerDownRoutine()
@@ -444,5 +460,38 @@ public class Player : MonoBehaviour
         _isHomingMissileActive = true;
         _currentMissiles = _numberOfMissiles;
         _uIManager.UpdateMissile(_currentMissiles, _numberOfMissiles);
+    }
+
+    public void OmniShotActivate()
+    {
+        if (_isOmniShotActive == false)
+        {
+            _isOmniShotActive = true;
+            Debug.Log("Omni-Shot On!");
+            StartCoroutine(OmniShotPowerDownRoutine());
+        }
+        else
+        {
+            _omniShotDuration += _powerUpDuration;
+        }
+
+        if (_isTripleShotActive == true)
+        {
+            _isTripleShotActive = false;
+            _tripleShotDuration = 0;
+        }
+    }
+
+    IEnumerator OmniShotPowerDownRoutine()
+    {
+        while (_omniShotDuration > 0)
+        {
+            yield return new WaitForSeconds(1f);
+            _omniShotDuration--;
+        }
+
+        _omniShotDuration = _powerUpDuration;
+        _isOmniShotActive = false;
+        Debug.Log("Omni-Shot Off!");
     }
 }

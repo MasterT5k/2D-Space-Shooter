@@ -32,12 +32,34 @@ public class Enemy : MonoBehaviour
     private int _minFireDelay = 3, _maxFireDelay = 8;
     private float _canFire;
 
+    [Header("Shield Settings")]
+    [SerializeField]
+    [Range(1, 3)]
+    private int _shieldStrength = 1;
+    [SerializeField]
+    [Range(0, 1)]
+    private float _chanceOfShield = 0.5f;
+    [SerializeField]
+    private GameObject _shieldVisual = null;
+    private bool _isShieldActive = false;
+    private int _currentShieldStrength;
+    private SpriteRenderer _shieldRenderer = null;
+    private Color _fullShieldColor = Color.white;
+    [SerializeField]
+    private Color _secondShieldColor;
+    [SerializeField]
+    private Color _lastShieldColor;
+
     private AudioSource _source = null;
     private Player _player = null;
     private Animator _anim = null;
 
     void Start()
     {
+        _shieldRenderer = _shieldVisual.GetComponent<SpriteRenderer>();
+        _fullShieldColor = _shieldRenderer.color;
+        ShieldChance(_chanceOfShield);
+
         _source = GetComponent<AudioSource>();
 
         _player = GameObject.Find("Player").GetComponent<Player>();
@@ -68,10 +90,24 @@ public class Enemy : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.tag == "Laser")
+
+        if (other.tag == "Omni Shot")
         {
-            Destroy(other.gameObject);
-            
+            if (_isShieldActive == true)
+            {
+                _currentShieldStrength--;
+
+                if (_currentShieldStrength > 0)
+                {
+                    ChangeShield(_currentShieldStrength);
+                    return;
+                }
+
+                _isShieldActive = false;
+                _shieldVisual.SetActive(false);
+                return;
+            }
+
             if (_player != null)
             {
                 _player.AddScore();
@@ -86,6 +122,44 @@ public class Enemy : MonoBehaviour
             _anim.SetTrigger("Destroyed");
             gameObject.tag = "Untagged";
             _speed = 0;
+            gameObject.GetComponent<Collider2D>().enabled = false;
+            Destroy(gameObject, _destroyDelay);
+        }
+
+        if (other.tag == "Laser")
+        {
+            Destroy(other.gameObject);
+
+            if (_isShieldActive == true)
+            {
+                _currentShieldStrength--;
+
+                if (_currentShieldStrength > 0)
+                {
+                    ChangeShield(_currentShieldStrength);
+                    return;
+                }
+
+                _isShieldActive = false;
+                _shieldVisual.SetActive(false);
+                return;
+            }
+
+            if (_player != null)
+            {
+                _player.AddScore();
+            }
+
+            if (_isDead == false)
+            {
+                PlayClip(_explosionClip);
+                _isDead = true;
+            }
+
+            _anim.SetTrigger("Destroyed");
+            gameObject.tag = "Untagged";
+            _speed = 0;
+            gameObject.GetComponent<Collider2D>().enabled = false;
             Destroy(gameObject, _destroyDelay);
         }
 
@@ -94,6 +168,21 @@ public class Enemy : MonoBehaviour
             if (_player != null)
             {
                 _player.ChangeLives();
+            }
+
+            if (_isShieldActive == true)
+            {
+                _currentShieldStrength--;
+
+                if (_currentShieldStrength > 0)
+                {
+                    ChangeShield(_currentShieldStrength);
+                    return;
+                }
+
+                _isShieldActive = false;
+                _shieldVisual.SetActive(false);
+                return;
             }
 
             if (_isDead == false)
@@ -105,6 +194,7 @@ public class Enemy : MonoBehaviour
             _anim.SetTrigger("Destroyed");
             gameObject.tag = "Untagged";
             _speed = 0;
+            gameObject.GetComponent<Collider2D>().enabled = false;
             Destroy(gameObject, _destroyDelay);
         }
     }
@@ -129,5 +219,38 @@ public class Enemy : MonoBehaviour
     void PlayClip(AudioClip clip)
     {
         _source.PlayOneShot(clip);
+    }
+
+    void ShieldChance(float precentage)
+    {
+        float randomChance = Random.Range(0f, 1f);
+
+        if (precentage > randomChance)
+        {
+            _isShieldActive = true;
+            _shieldVisual.SetActive(true);
+            _currentShieldStrength = _shieldStrength;
+            ChangeShield(_currentShieldStrength);
+        }
+        else
+        {
+            _shieldVisual.SetActive(false);
+        }
+    }
+
+    private void ChangeShield(int shieldStrength)
+    {
+        if (shieldStrength == 3)
+        {
+            _shieldRenderer.color = _fullShieldColor;
+        }
+        else if (shieldStrength == 2)
+        {
+            _shieldRenderer.color = _secondShieldColor;
+        }
+        else
+        {
+            _shieldRenderer.color = _lastShieldColor;
+        }
     }
 }

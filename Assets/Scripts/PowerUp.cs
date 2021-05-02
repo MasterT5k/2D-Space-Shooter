@@ -22,7 +22,8 @@ public class PowerUp : MonoBehaviour
         Shield,
         Ammo,
         Health,
-        Missile
+        Missile,
+        OmniShot
     }
 
     void Update()
@@ -62,6 +63,9 @@ public class PowerUp : MonoBehaviour
                         break;
                     case PowerUpType.Missile:
                         player.ActivateHomingMissiles();
+                        break;
+                    case PowerUpType.OmniShot:
+                        player.OmniShotActivate();
                         break;
                     default:
                         Debug.Log("Power Up ID Not Found");

@@ -98,7 +98,7 @@ CircleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -140,6 +140,7 @@ MonoBehaviour:
   _target: {fileID: 0}
   _movementSpeed: 6
   _rotationSpeed: 250
+  _yDestroyDistance: 12
 --- !u!95 &6222265058984536106
 Animator:
   serializedVersion: 3
