@@ -4,13 +4,13 @@ using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(Collider2D))]
-public class Enemy : MonoBehaviour
+public abstract class Enemy : MonoBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField]
     private float _speed = 4f;
     [SerializeField]
-    private float _horizontalLimits = 8;
+    protected float _horizontalLimits = 8;
     [SerializeField]
     private float _verticalLimits = -8f;
 
@@ -23,11 +23,11 @@ public class Enemy : MonoBehaviour
 
     [Header("Shooting Settings")]
     [SerializeField]
-    private GameObject _laserPrefab;
+    protected GameObject _laserPrefab;
     [SerializeField]
-    private Transform _laserSpawn;
+    protected Transform _laserSpawn;
     [SerializeField]
-    private AudioClip _laserClip = null;
+    protected AudioClip _laserClip = null;
     [SerializeField]
     private int _minFireDelay = 3, _maxFireDelay = 8;
     private float _canFire;
@@ -51,10 +51,25 @@ public class Enemy : MonoBehaviour
     private Color _lastShieldColor;
 
     private AudioSource _source = null;
-    private Player _player = null;
+    protected Player _player = null;
     private Animator _anim = null;
 
-    void Start()
+    protected virtual void Start()
+    {
+        Init();
+    }
+
+    protected virtual void Update()
+    {
+        if (Time.time > _canFire && _isDead == false)
+        {
+            FireLaser();
+        }
+
+        CalulateMovement();
+    }
+
+    void Init()
     {
         _shieldRenderer = _shieldVisual.GetComponent<SpriteRenderer>();
         _fullShieldColor = _shieldRenderer.color;
@@ -71,13 +86,8 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void Update()
+    protected virtual void CalulateMovement()
     {
-        if (Time.time > _canFire && _isDead == false)
-        {
-            FireLaser();
-        }
-
         transform.Translate(Vector2.down * _speed * Time.deltaTime);
 
         if (transform.position.y < _verticalLimits)
@@ -88,7 +98,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    void OnTriggerEnter2D(Collider2D other)
     {
 
         if (other.tag == "Omni Shot")
@@ -199,7 +209,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void FireLaser()
+    protected virtual void FireLaser()
     {
         float fireRate = Random.Range(_minFireDelay, _maxFireDelay);
         _canFire = Time.time + fireRate;
@@ -216,16 +226,16 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void PlayClip(AudioClip clip)
+    protected void PlayClip(AudioClip clip)
     {
         _source.PlayOneShot(clip);
     }
 
-    void ShieldChance(float precentage)
+    protected void ShieldChance(float percentage)
     {
         float randomChance = Random.Range(0f, 1f);
 
-        if (precentage > randomChance)
+        if (percentage > randomChance)
         {
             _isShieldActive = true;
             _shieldVisual.SetActive(true);
@@ -238,7 +248,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void ChangeShield(int shieldStrength)
+    protected void ChangeShield(int shieldStrength)
     {
         if (shieldStrength == 3)
         {
