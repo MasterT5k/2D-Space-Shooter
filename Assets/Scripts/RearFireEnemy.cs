@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class RearFireEnemy : Enemy
 {
+    [Header("Rear Fire Variables")]
     [SerializeField]
     private Transform _rearLaserSpawn = null;
+    private bool _isPlayerBehind = false;
 
     protected override void Start()
     {
@@ -23,16 +25,33 @@ public class RearFireEnemy : Enemy
 
     protected override void FireLaser()
     {
-        //If Player is infront of the Enemy Fire Normally.
-        base.FireLaser();
-        //Else Player is behind the Enemy Fire Backwards.
-        //Spawn Laser Behind the Enemy.
-        PlayClip(_laserClip);
-        //End else
+        if (_isPlayerBehind == false)
+        {
+            base.FireLaser(); 
+        }
+        else
+        {
+            float fireRate = Random.Range(_minFireDelay, _maxFireDelay);
+            _canFire = Time.time + fireRate;
+
+            PlayClip(_laserClip);
+
+            Instantiate(_laserPrefab, _rearLaserSpawn.position, Quaternion.identity);
+        }
     }
 
     void DeterminePlayerPosition()
     {
-        //Determine where the Player is.
+        float playerYAxis = _player.transform.position.y;
+        float enemyYAxis = transform.position.y;
+
+        if (playerYAxis >= enemyYAxis)
+        {
+            _isPlayerBehind = true;
+        }
+        else
+        {
+            _isPlayerBehind = false;
+        }
     }
 }

@@ -29,8 +29,8 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField]
     protected AudioClip _laserClip = null;
     [SerializeField]
-    private int _minFireDelay = 3, _maxFireDelay = 8;
-    private float _canFire;
+    protected int _minFireDelay = 3, _maxFireDelay = 8;
+    protected float _canFire;
 
     [Header("Shield Settings")]
     [SerializeField]
