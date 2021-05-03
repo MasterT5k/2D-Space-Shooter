@@ -19,7 +19,7 @@ public abstract class Enemy : MonoBehaviour
     private float _destroyDelay = 2.6f;
     [SerializeField]
     private AudioClip _explosionClip = null;
-    private bool _isDead = false;
+    protected bool _isDead = false;
 
     [Header("Shooting Settings")]
     [SerializeField]
@@ -92,10 +92,15 @@ public abstract class Enemy : MonoBehaviour
 
         if (transform.position.y < _verticalLimits)
         {
-            float randomX = Random.Range(-_horizontalLimits, _horizontalLimits);
-            Vector2 spawnPoint = new Vector2(randomX, -_verticalLimits);
-            transform.position = spawnPoint;
+            Respawn();
         }
+    }
+
+    protected virtual void Respawn()
+    {
+        float randomX = Random.Range(-_horizontalLimits, _horizontalLimits);
+        Vector2 spawnPoint = new Vector2(randomX, -_verticalLimits);
+        transform.position = spawnPoint;
     }
 
     void OnTriggerEnter2D(Collider2D other)
