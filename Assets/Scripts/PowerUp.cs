@@ -23,7 +23,8 @@ public class PowerUp : MonoBehaviour
         Ammo,
         Health,
         Missile,
-        OmniShot
+        OmniShot,
+        Negative
     }
 
     void Update()
@@ -67,6 +68,10 @@ public class PowerUp : MonoBehaviour
                     case PowerUpType.OmniShot:
                         player.OmniShotActivate();
                         break;
+                    case PowerUpType.Negative:
+                        player.ChangeLives();
+                        player.NegativeEffectActivate();
+                        break;
                     default:
                         Debug.Log("Power Up ID Not Found");
                         break;
@@ -74,5 +79,15 @@ public class PowerUp : MonoBehaviour
             }
             Destroy(gameObject);
         }
+    }
+
+    public void AttractPowerUp()
+    {
+
+    }
+
+    public void StopAttractingPowerUp()
+    {
+
     }
 }

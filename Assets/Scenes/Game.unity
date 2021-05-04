@@ -540,6 +540,7 @@ MonoBehaviour:
   _homingMissilePrefab: {fileID: 6222265058984536144, guid: 327545c60a32db1479f1b82312713a2d,
     type: 3}
   _numberOfMissiles: 4
+  _fireDelayIncrease: 2
   _maxLives: 3
   _engineFires:
   - {fileID: 456737790}

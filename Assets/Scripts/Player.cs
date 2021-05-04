@@ -75,13 +75,17 @@ public class Player : MonoBehaviour
     private bool _isSpeedBoostActive = false;
     private float _speedBoostDuration;
 
-
     [SerializeField]
     private GameObject _homingMissilePrefab = null;
     [SerializeField]
     private int _numberOfMissiles = 4;
     private int _currentMissiles;
     private bool _isHomingMissileActive = false;
+
+    [SerializeField]
+    private float _fireDelayIncrease = 2f;
+    private float _negativeEffectDuration;
+    private bool _isNegativeEffectActive = false;
 
     [Header("Health Settings")]
     [SerializeField]
@@ -99,7 +103,8 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        _omniShotDuration = _powerUpDuration;
+        _negativeEffectDuration = _powerUpDuration;
+
         Init();
     }
 
@@ -111,7 +116,7 @@ public class Player : MonoBehaviour
         _lives = _maxLives;
         _tripleShotDuration = _powerUpDuration;
         _speedBoostDuration = _powerUpDuration;
-
+        _omniShotDuration = _powerUpDuration;
 
         _shieldRenderer = _shieldVisual.GetComponent<SpriteRenderer>();
         _fullShieldColor = _shieldRenderer.color;
@@ -157,7 +162,7 @@ public class Player : MonoBehaviour
             _uIManager.UpdateMissile(_currentMissiles, _numberOfMissiles);
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire && _currentAmmo > 0)
+        if (Input.GetKey(KeyCode.Space) && Time.time > _canFire && _currentAmmo > 0)
         {
             FireLaser();
         }
@@ -250,7 +255,15 @@ public class Player : MonoBehaviour
 
     void FireLaser()
     {
-        _canFire = Time.time + _fireRate;
+        if (_isNegativeEffectActive == true)
+        {
+            _canFire = Time.time + _fireRate + _fireDelayIncrease;
+        }
+        else
+        {
+            _canFire = Time.time + _fireRate;
+        }
+
         PlayClip(_laserClip);
 
         if (_isTripleShotActive == true)
@@ -493,5 +506,33 @@ public class Player : MonoBehaviour
         _omniShotDuration = _powerUpDuration;
         _isOmniShotActive = false;
         Debug.Log("Omni-Shot Off!");
+    }
+
+    public void NegativeEffectActivate()
+    {
+        if (_isNegativeEffectActive == false)
+        {
+            _canFire += _fireDelayIncrease;
+            _isNegativeEffectActive = true;
+            Debug.Log("Negative Effect On!");
+            StartCoroutine(NegativeEffectPowerDownRoutine());
+        }
+        else
+        {
+            _negativeEffectDuration += _powerUpDuration;
+        }
+    }
+
+    IEnumerator NegativeEffectPowerDownRoutine()
+    {
+        while (_negativeEffectDuration > 0)
+        {
+            yield return new WaitForSeconds(1f);
+            _negativeEffectDuration--;
+        }
+
+        _negativeEffectDuration = _powerUpDuration;
+        _isNegativeEffectActive = false;
+        Debug.Log("Negative Effect Off!");
     }
 }
