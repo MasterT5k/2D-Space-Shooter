@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -4696898652091298688}
   m_Layer: 0
   m_Name: Missile Power Up
-  m_TagString: Untagged
+  m_TagString: Power Up
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

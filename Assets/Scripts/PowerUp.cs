@@ -12,6 +12,8 @@ public class PowerUp : MonoBehaviour
     private AudioClip _powerUpClip = null;
     [SerializeField]
     private int _healAmount = 1;
+    private Transform _playerTransform = null;
+    private bool _isMovingToPlayer = false;
 
     [SerializeField]
     private PowerUpType _powerUpType = PowerUpType.TripleShot;
@@ -27,13 +29,25 @@ public class PowerUp : MonoBehaviour
         Negative
     }
 
+    void Start()
+    {
+        _playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+    }
+
     void Update()
     {
-        transform.Translate(Vector2.down * _speed * Time.deltaTime);
-
-        if (transform.position.y < _verticalLimit)
+        if (_isMovingToPlayer == false)
         {
-            Destroy(gameObject);
+            transform.Translate(Vector2.down * _speed * Time.deltaTime);
+
+            if (transform.position.y < _verticalLimit)
+            {
+                Destroy(gameObject);
+            }
+        }
+        else
+        {
+            transform.position = Vector3.MoveTowards(transform.position, _playerTransform.position, _speed * Time.deltaTime);
         }
     }
 
@@ -81,13 +95,19 @@ public class PowerUp : MonoBehaviour
         }
     }
 
-    public void AttractPowerUp()
+    public void MoveToPlayer()
     {
-
+        if (_isMovingToPlayer == false)
+        {
+            _isMovingToPlayer = true;
+        }
     }
 
-    public void StopAttractingPowerUp()
+    public void StopMovingToPlayer()
     {
-
+        if (_isMovingToPlayer == true)
+        {
+            _isMovingToPlayer = false;
+        }
     }
 }

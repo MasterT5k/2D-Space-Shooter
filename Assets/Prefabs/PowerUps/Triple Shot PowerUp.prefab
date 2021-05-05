@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 4796823792175446465}
   m_Layer: 0
   m_Name: Triple Shot PowerUp
-  m_TagString: Untagged
+  m_TagString: Power Up
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -157,4 +157,5 @@ MonoBehaviour:
   _speed: 4
   _verticalLimit: -5.5
   _powerUpClip: {fileID: 8300000, guid: 5ee343246919d2b4bba63ae629e95494, type: 3}
+  _healAmount: 1
   _powerUpType: 0

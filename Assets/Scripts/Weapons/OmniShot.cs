@@ -44,7 +44,6 @@ public class OmniShot : MonoBehaviour
         {
             opacity -= Time.deltaTime * _fadeMultiplier;
             _renderer.color = new Color(_renderer.color.r, _renderer.color.g, _renderer.color.b, opacity);
-            Debug.Log(opacity);
             yield return null;
         }
         Destroy(gameObject);
