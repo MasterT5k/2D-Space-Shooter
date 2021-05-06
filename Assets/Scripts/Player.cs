@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private bool _wrapHorizontal = true;
 
+    private float _baseSpeed;
     [SerializeField]
     private float _thrusterBoost = 2f;
     [SerializeField]
@@ -111,7 +112,7 @@ public class Player : MonoBehaviour
     void Init()
     {
         transform.position = new Vector2(0, 0);
-
+        _baseSpeed = _speed;
         _currentAmmo = _maxAmmo;
         _lives = _maxLives;
         _tripleShotDuration = _powerUpDuration;
@@ -180,7 +181,7 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.LeftShift))
         {
-            _speed -= _thrusterBoost;
+            _speed = _baseSpeed;
             _isThrusterActive = false;
         }
 
@@ -193,7 +194,7 @@ public class Player : MonoBehaviour
                 _elapsedTime = _thrusterBurnLength;
                 _isThrusterDown = true;
                 _isThrusterActive = false;
-                _speed -= _thrusterBoost;
+                _speed = _baseSpeed;
             }
 
             _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
