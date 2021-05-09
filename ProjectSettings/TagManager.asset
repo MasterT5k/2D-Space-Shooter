@@ -9,6 +9,7 @@ TagManager:
   - Enemy
   - Omni Shot
   - Power Up
+  - Mine
   layers:
   - Default
   - TransparentFX

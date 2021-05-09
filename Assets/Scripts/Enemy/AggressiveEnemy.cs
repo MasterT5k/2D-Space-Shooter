@@ -97,23 +97,4 @@ public class AggressiveEnemy : Enemy
         yield return new WaitForSeconds(_recoveryTime);
         _isRecovering = false;
     }
-
-    //Magnetic Mine Enemy
-    //void FixedUpdate()
-    //{
-    //    if (_isInRamRange == true && _isDead == false)
-    //    {
-    //        //_isOutOfStartRotation = true;
-    //        Vector2 direction = (Vector2)_player.transform.position - _rigidBody.position;
-    //        direction.Normalize();
-    //        float rotateAmount = Vector3.Cross(direction, -transform.up).z;
-    //        _rigidBody.angularVelocity = -_rotationSpeed * rotateAmount;
-    //        _rigidBody.velocity = -transform.up * _rammingSpeed;
-    //    }
-    //    else if (_isInRamRange == false && _isDead == false)
-    //    {
-    //        _rigidBody.velocity = Vector2.zero;
-    //        _rigidBody.angularVelocity = 0;
-    //    }
-    //}
 }
