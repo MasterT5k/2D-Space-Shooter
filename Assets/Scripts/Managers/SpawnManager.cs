@@ -152,7 +152,7 @@ public class SpawnManager : MonoBehaviour
                 selectedPowerUp = _commonPowerUpPrefab;
                 return selectedPowerUp;
             }
-            else if (randomChance >= _rareChance)
+            else if (randomChance <= _rareChance)
             {
                 _numberOfRaresSpawned++;
                 int rareLength = _rarePowerUpPrefabs.Length;
