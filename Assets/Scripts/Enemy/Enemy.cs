@@ -6,6 +6,9 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public abstract class Enemy : MonoBehaviour
 {
+    [SerializeField]
+    private int _enemyID = 0;
+
     [Header("Movement Settings")]
     [SerializeField]
     private float _speed = 4f;
@@ -267,5 +270,10 @@ public abstract class Enemy : MonoBehaviour
         {
             _shieldRenderer.color = _lastShieldColor;
         }
+    }
+
+    public int GetEnemyID()
+    {
+        return _enemyID;
     }
 }

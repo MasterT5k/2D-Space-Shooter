@@ -23,7 +23,13 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private Text _restartText = null;
     [SerializeField]
+    private Text _waveText = null;
+    [SerializeField]
+    private Text _nextWaveText = null;
+    [SerializeField]
     private float _flickerDelay = 0.5f;
+    [SerializeField]
+    private float _flickerDuration = 2f;
 
     private GameManager _gameManager = null;
 
@@ -37,6 +43,7 @@ public class UIManager : MonoBehaviour
 
         _gameOverText.gameObject.SetActive(false);
         _restartText.gameObject.SetActive(false);
+        _nextWaveText.gameObject.SetActive(false);
     }
 
     public void UpdateLivesImage(int lives)
@@ -74,6 +81,21 @@ public class UIManager : MonoBehaviour
         _thrusterSlider.value = burnLength -= elapsedTime;
     }
 
+    public void UpdateWaves(int currentWave , int maxWaves)
+    {
+        if (currentWave < 0)
+        {
+            currentWave = 0;
+        }
+        _waveText.text = "Waves:" + currentWave + "/" + maxWaves;
+    }
+
+    public void FlashNextWave()
+    {
+        StartCoroutine(NextWaveFlickerRoutine());
+
+    }
+
     IEnumerator GameOverFlickerRoutine()
     {
         while (true)
@@ -82,6 +104,21 @@ public class UIManager : MonoBehaviour
             yield return new WaitForSeconds(_flickerDelay);
             _gameOverText.gameObject.SetActive(false);
             yield return new WaitForSeconds(_flickerDelay);
+        }
+    }
+
+
+
+    IEnumerator NextWaveFlickerRoutine()
+    {
+        int counter = 0;
+        while (counter < _flickerDuration)
+        {
+            _nextWaveText.gameObject.SetActive(true);
+            yield return new WaitForSeconds(_flickerDelay);
+            _nextWaveText.gameObject.SetActive(false);
+            yield return new WaitForSeconds(_flickerDelay);
+            counter++;
         }
     }
 }

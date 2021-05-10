@@ -324,6 +324,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0642017ecee960449828420a35c74f6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _enemyID: 1
   _speed: 4
   _horizontalLimits: 8
   _verticalLimits: -8

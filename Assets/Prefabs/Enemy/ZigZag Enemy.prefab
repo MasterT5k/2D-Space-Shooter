@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 4610586925228825993}
   - component: {fileID: 2737690731097778925}
   m_Layer: 0
-  m_Name: ZigZagEnemy
+  m_Name: ZigZag Enemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -126,6 +126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bcbe0a0131b0f846904a383c92c9415, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _enemyID: 5
   _speed: 4
   _horizontalLimits: 8
   _verticalLimits: -8
@@ -142,6 +143,8 @@ MonoBehaviour:
   _shieldVisual: {fileID: 6856737543677809523}
   _secondShieldColor: {r: 1, g: 0.6, b: 0, a: 0.5019608}
   _lastShieldColor: {r: 1, g: 0.07058824, b: 0, a: 0.5019608}
+  _sideMovementSpeed: 2
+  _xOffset: 1.5
 --- !u!82 &2737690731097778925
 AudioSource:
   m_ObjectHideFlags: 0

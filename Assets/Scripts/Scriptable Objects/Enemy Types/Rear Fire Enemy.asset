@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a272b6725df6354b8595e1667cc623c, type: 3}
+  m_Name: Rear Fire Enemy
+  m_EditorClassIdentifier: 
+  enemyPrefab: {fileID: 2626630997824786967, guid: a40f329644183c14a8e7c1b6fb0b2773,
+    type: 3}

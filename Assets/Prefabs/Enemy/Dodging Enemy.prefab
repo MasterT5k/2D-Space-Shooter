@@ -73,7 +73,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 3154912113cbb4a498df6f571c74e18c, type: 3}
-  m_Color: {r: 0.7140242, g: 1, b: 0.4575472, a: 1}
+  m_Color: {r: 0.9150943, g: 0.88174224, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -195,6 +195,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _effectiveness: 0.9
+  _disableEffectiveness: 0
 --- !u!1 &3413201222761639332
 GameObject:
   m_ObjectHideFlags: 0
@@ -388,6 +389,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81713e3fc979366418cc07ee78eb6878, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _enemyID: 2
   _speed: 4
   _horizontalLimits: 8
   _verticalLimits: -8
@@ -405,8 +407,6 @@ MonoBehaviour:
   _secondShieldColor: {r: 1, g: 0.6, b: 0, a: 0.5019608}
   _lastShieldColor: {r: 1, g: 0.0694667, b: 0, a: 0.5019608}
   _dodgeSpeed: 2
-  _isDodging: 0
-  _currentLaser: {fileID: 0}
 --- !u!1 &4419739842231859884
 GameObject:
   m_ObjectHideFlags: 0
