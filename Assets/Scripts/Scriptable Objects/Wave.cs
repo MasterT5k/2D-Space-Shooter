@@ -6,6 +6,5 @@ using UnityEngine;
 public class Wave : ScriptableObject
 {
     public List<EnemyType> enemiesToSpawn = new List<EnemyType>();
-    //public int maxPowerUps = 0;
-    //public int numberOfRarePowerUps = 0;
+    public int numberOfRarePowerUps = 2;
 }

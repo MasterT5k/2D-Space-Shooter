@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
+    [Header("Spawn Settings")]
     //[SerializeField]
     //private GameObject[] _enemyPrefabs = null;
     [SerializeField]
@@ -22,10 +23,24 @@ public class SpawnManager : MonoBehaviour
     private int _numberOfWaves;
     private int _currentEnemy = -1;
 
+    [Header("Power-Up Settings")]
     [SerializeField]
-    private int _minPowerUpSpawnDelay = 3, _maxPowerUpSpawnDelay = 8;
+    private int _minPowerUpSpawnDelay = 3;
     [SerializeField]
-    private GameObject[] _powerUpPrefabs = null;
+    private int _maxPowerUpSpawnDelay = 8;
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float _uncommonChance = 0.31f;
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float _rareChance = 0.1f;
+    [SerializeField]
+    private GameObject _commonPowerUpPrefab = null;
+    [SerializeField]
+    private GameObject[] _uncommonPowerUpPrefabs = null;
+    [SerializeField]
+    private GameObject[] _rarePowerUpPrefabs = null;
+    private int _numberOfRaresSpawned;
 
     private bool _stopSpawningEnemies = false;
     private bool _stopSpawningPowerUps = false;
@@ -43,7 +58,7 @@ public class SpawnManager : MonoBehaviour
         }
         else
         {
-            _uIManager.UpdateWaves(_currentWave, _numberOfWaves); 
+            _uIManager.UpdateWaves(_currentWave, _numberOfWaves);
         }
     }
 
@@ -101,6 +116,7 @@ public class SpawnManager : MonoBehaviour
 
     IEnumerator SpawnPowerUpRoutine()
     {
+        _numberOfRaresSpawned = 0;
         yield return new WaitForSeconds(_spawnStartDelay);
 
         while (_stopSpawningPowerUps == false)
@@ -109,7 +125,12 @@ public class SpawnManager : MonoBehaviour
             float randomX = Random.Range(-_horizontalLimits, _horizontalLimits);
             Vector2 spawnLocation = new Vector2(randomX, _spawnPoint.position.y);
 
-            Instantiate(_powerUpPrefabs[Random.Range(0, _powerUpPrefabs.Length)], spawnLocation, Quaternion.identity);
+            GameObject powerUp = SelectPowerUp();
+            if (powerUp == null)
+            {
+                yield break;
+            }
+            Instantiate(powerUp, spawnLocation, Quaternion.identity);
             yield return new WaitForSeconds(randomDelay);
         }
     }
@@ -118,5 +139,54 @@ public class SpawnManager : MonoBehaviour
     {
         _stopSpawningEnemies = true;
         _stopSpawningPowerUps = true;
+    }
+
+    private GameObject SelectPowerUp()
+    {
+        if (_stopSpawningPowerUps == false)
+        {
+            float randomChance = Random.value;
+            GameObject selectedPowerUp = null;
+            if (randomChance > _uncommonChance)
+            {
+                selectedPowerUp = _commonPowerUpPrefab;
+                return selectedPowerUp;
+            }
+            else if (randomChance >= _rareChance)
+            {
+                _numberOfRaresSpawned++;
+                int rareLength = _rarePowerUpPrefabs.Length;
+                if (_rarePowerUpPrefabs.Length > 1)
+                {
+                    int randomPowerUp = Random.Range(0, rareLength);
+                    selectedPowerUp = _rarePowerUpPrefabs[randomPowerUp];
+                }
+                else
+                {
+                    selectedPowerUp = _rarePowerUpPrefabs[0];
+                }
+
+                if (_numberOfRaresSpawned >= _waves[_currentWave].numberOfRarePowerUps)
+                {
+                    selectedPowerUp = _commonPowerUpPrefab;
+                }
+                return selectedPowerUp;
+            }
+            else
+            {
+                int uncommonLength = _uncommonPowerUpPrefabs.Length;
+                if (_uncommonPowerUpPrefabs.Length > 1)
+                {
+                    int randomPowerUp = Random.Range(0, uncommonLength);
+                    selectedPowerUp = _uncommonPowerUpPrefabs[randomPowerUp];
+                }
+                else
+                {
+                    selectedPowerUp = _uncommonPowerUpPrefabs[0];
+                }
+                return selectedPowerUp;
+            }
+        }
+        return null;
     }
 }

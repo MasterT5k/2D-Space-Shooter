@@ -63,7 +63,6 @@ public class DodgingEnemy : Enemy
             {
                 if (_laserDodgeList[0] == null)
                 {
-                    Debug.LogError("Laser List Element is NULL");
                     return;
                 }
 

@@ -160,15 +160,22 @@ MonoBehaviour:
   _waves:
   - {fileID: 11400000, guid: ba6f80da514cbab42bb5a7b83857af19, type: 2}
   - {fileID: 11400000, guid: f3f2f5eed2768d14babd5aafbd478acf, type: 2}
+  - {fileID: 11400000, guid: 999c377089f63c44a8f72ff3bca0bb07, type: 2}
+  - {fileID: 11400000, guid: 4efb1f077e684a643a0b7b839dbee5f2, type: 2}
   _minPowerUpSpawnDelay: 3
   _maxPowerUpSpawnDelay: 8
-  _powerUpPrefabs:
+  _uncommonChance: 0.31
+  _rareChance: 0.1
+  _commonPowerUpPrefab: {fileID: 6003890646449019135, guid: 44bdea8c7c8f48340a32ff3d90c73189,
+    type: 3}
+  _uncommonPowerUpPrefabs:
+  - {fileID: 927867875168007790, guid: 0279efe18cdd8594d81c50608dc359e8, type: 3}
   - {fileID: 687521639106952998, guid: b2867d125d20d684b8a5265e2b83a79b, type: 3}
   - {fileID: 745946380151580562, guid: c9fd9dfb494b441438676ed9a04fa421, type: 3}
-  - {fileID: 6003890646449019135, guid: 44bdea8c7c8f48340a32ff3d90c73189, type: 3}
-  - {fileID: 6003890646449019135, guid: 44bdea8c7c8f48340a32ff3d90c73189, type: 3}
-  - {fileID: 927285428592891060, guid: 0b7fec7079bd6f549b1f1a0ad1c8e30e, type: 3}
+  - {fileID: 6922981836124109087, guid: c140509551c2bc44b82e9baa98ceba47, type: 3}
+  _rarePowerUpPrefabs:
   - {fileID: 4931573503029387796, guid: a38a183944360bb4b82a89a27ac86727, type: 3}
+  - {fileID: 927285428592891060, guid: 0b7fec7079bd6f549b1f1a0ad1c8e30e, type: 3}
 --- !u!4 &7220206
 Transform:
   m_ObjectHideFlags: 0
@@ -2154,11 +2161,11 @@ RectTransform:
   m_Father: {fileID: 987248877}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 50}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -25}
   m_SizeDelta: {x: 450, y: 80}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &1433808283
 GameObject:
   m_ObjectHideFlags: 0
