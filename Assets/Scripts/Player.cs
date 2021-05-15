@@ -153,7 +153,7 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Tab) && _isHomingMissileActive == true)
         {
             GameObject missile = Instantiate(_homingMissilePrefab, _spawnPoint.position, Quaternion.identity);
-            missile.GetComponent<HomingMissile>().AssignTarget();
+            missile.GetComponent<HomingMissile>().AssignEnemyTarget();
             _currentMissiles--;
             if (_currentMissiles < 1)
             {
@@ -256,7 +256,7 @@ public class Player : MonoBehaviour
 
     void FireLaser()
     {
-        if (_isNegativeEffectActive == true)
+        if (_isNegativeEffectActive == true || _isOmniShotActive == true)
         {
             _canFire = Time.time + _fireRate + _fireDelayIncrease;
         }

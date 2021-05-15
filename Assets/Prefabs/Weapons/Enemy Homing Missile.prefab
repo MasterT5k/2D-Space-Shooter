@@ -15,8 +15,8 @@ GameObject:
   - component: {fileID: 6222265058984536111}
   - component: {fileID: 6222265058984536106}
   m_Layer: 0
-  m_Name: Homing Missile
-  m_TagString: Laser
+  m_Name: Enemy Homing Missile
+  m_TagString: Enemy Laser
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -75,7 +75,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -881872441
   m_SortingLayer: 2
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -2413806693520163455, guid: 4adeaf2d2b1c7417e89f026626d8264f,
     type: 3}
   m_Color: {r: 1, g: 0, b: 0, a: 1}
@@ -138,9 +138,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _target: {fileID: 0}
-  _movementSpeed: 6
-  _rotationSpeed: 250
-  _fuseTimer: 10
+  _movementSpeed: 4
+  _rotationSpeed: 200
+  _fuseTimer: 5
   _explosionPrefab: {fileID: 8466023616670967949, guid: eb44554f4ff562743abbd27563503b66,
     type: 3}
 --- !u!95 &6222265058984536106
@@ -232,7 +232,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -881872441
   m_SortingLayer: 2
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 3625043607559282579, guid: 0d267bc78a0864eb48358689b29ed20a,
     type: 3}
   m_Color: {r: 1, g: 0, b: 0, a: 1}

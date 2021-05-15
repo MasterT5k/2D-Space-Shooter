@@ -12,19 +12,28 @@ public class HomingMissile : MonoBehaviour
     [SerializeField]
     private float _rotationSpeed = 200f;
     [SerializeField]
-    private float _yDestroyDistance = 12f;
+    private float _fuseTimer = 5f;
+    private float _timer;
+    [SerializeField]
+    private GameObject _explosionPrefab = null;
     private Rigidbody2D _rigidBody;
+    private bool _isEnemyMissile = false;
 
     void Start()
     {
         _rigidBody = GetComponent<Rigidbody2D>();
-        AssignTarget();
+        if (_isEnemyMissile == false)
+        {
+            AssignEnemyTarget();
+        }
     }
 
     void Update()
     {
-        if (transform.position.y > _yDestroyDistance)
+        _timer += Time.deltaTime;
+        if (_timer > _fuseTimer)
         {
+            Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
             Destroy(this.gameObject);
         }
     }
@@ -37,16 +46,19 @@ public class HomingMissile : MonoBehaviour
             direction.Normalize();
             float rotateAmount = Vector3.Cross(direction, transform.up).z;
             _rigidBody.angularVelocity = -_rotationSpeed * rotateAmount;
-            _rigidBody.velocity = transform.up * _movementSpeed;
+        }
+        else if (_target == null && _isEnemyMissile == false)
+        {
+            AssignEnemyTarget();
         }
         else
         {
-            AssignTarget();
-            _rigidBody.velocity = transform.up * _movementSpeed;
-        }        
+            _rigidBody.angularVelocity = 0;
+        }
+        _rigidBody.velocity = transform.up * _movementSpeed;
     }
 
-    public void AssignTarget()
+    public void AssignEnemyTarget()
     {
         Transform enemy = null;
         float distance;
@@ -70,5 +82,28 @@ public class HomingMissile : MonoBehaviour
         }
 
         _target = enemy;
+    }
+
+    public void AssignEnemyMissile(Transform player)
+    {
+        _isEnemyMissile = true;
+        if (player != null)
+        {
+            _target = player;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.tag == "Player" && _isEnemyMissile == true)
+        {
+            Player player = other.GetComponent<Player>();
+            if (player != null)
+            {
+                player.ChangeLives();
+            }
+            Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
+            Destroy(this.gameObject);
+        }
     }
 }

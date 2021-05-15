@@ -21,6 +21,8 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private Text _gameOverText = null;
     [SerializeField]
+    private Text _winText = null;
+    [SerializeField]
     private Text _restartText = null;
     [SerializeField]
     private Text _waveText = null;
@@ -44,6 +46,7 @@ public class UIManager : MonoBehaviour
         _gameOverText.gameObject.SetActive(false);
         _restartText.gameObject.SetActive(false);
         _nextWaveText.gameObject.SetActive(false);
+        _winText.gameObject.SetActive(false);
     }
 
     public void UpdateLivesImage(int lives)
@@ -51,7 +54,7 @@ public class UIManager : MonoBehaviour
         _livesImage.sprite = _liveSprites[lives];
         if (lives == 0)
         {
-            StartCoroutine(GameOverFlickerRoutine());
+            StartCoroutine(ContinuousFlickerRoutine(_gameOverText));
             _restartText.gameObject.SetActive(true);
             _gameManager.GameOver();
         }
@@ -96,18 +99,23 @@ public class UIManager : MonoBehaviour
 
     }
 
-    IEnumerator GameOverFlickerRoutine()
+    public void ActivateWinText()
+    {
+        StartCoroutine(ContinuousFlickerRoutine(_winText));
+        _restartText.gameObject.SetActive(true);
+        _gameManager.GameOver();
+    }
+
+    IEnumerator ContinuousFlickerRoutine(Text textToFlicker)
     {
         while (true)
         {
-            _gameOverText.gameObject.SetActive(true);
+            textToFlicker.gameObject.SetActive(true);
             yield return new WaitForSeconds(_flickerDelay);
-            _gameOverText.gameObject.SetActive(false);
+            textToFlicker.gameObject.SetActive(false);
             yield return new WaitForSeconds(_flickerDelay);
         }
     }
-
-
 
     IEnumerator NextWaveFlickerRoutine()
     {

@@ -5,8 +5,6 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     [Header("Spawn Settings")]
-    //[SerializeField]
-    //private GameObject[] _enemyPrefabs = null;
     [SerializeField]
     private Transform _spawnPoint = null;
     [SerializeField]
@@ -22,6 +20,10 @@ public class SpawnManager : MonoBehaviour
     private int _currentWave = -1;
     private int _numberOfWaves;
     private int _currentEnemy = -1;
+    [SerializeField]
+    private GameObject _bossPrefab = null;
+    [SerializeField]
+    private Transform _bossSpawnPoint = null;
 
     [Header("Power-Up Settings")]
     [SerializeField]
@@ -42,9 +44,11 @@ public class SpawnManager : MonoBehaviour
     private GameObject[] _rarePowerUpPrefabs = null;
     private int _numberOfRaresSpawned;
 
+    private bool _isFinalWave = false;
     private bool _stopSpawningEnemies = false;
     private bool _stopSpawningPowerUps = false;
     private bool _countEnemies = false;
+    private bool _isBossActive = false;
     private UIManager _uIManager = null;
 
     private void Start()
@@ -67,11 +71,23 @@ public class SpawnManager : MonoBehaviour
         if (_countEnemies == true)
         {
             int numberOfEnemies = _enemyContainer.childCount;
-            if (numberOfEnemies <= 0)
+            if (numberOfEnemies <= 0 && _isBossActive == true)
             {
                 _countEnemies = false;
                 _stopSpawningPowerUps = true;
+                _uIManager.ActivateWinText();
+            }
+            else if (numberOfEnemies <= 0 && _isFinalWave == false)
+            {
+                _countEnemies = false;
+                _stopSpawningPowerUps = true;
+                StopCoroutine("SpawnPowerUpRoutine");
                 StartSpawning();
+            }
+            else if (numberOfEnemies <= 0 && _isFinalWave == true)
+            {
+                StartCoroutine(SpawnBossRoutine());
+                _isFinalWave = false;
             }
         }
     }
@@ -81,13 +97,18 @@ public class SpawnManager : MonoBehaviour
         _currentWave++;
         if (_currentWave >= _numberOfWaves)
         {
+            _currentWave = _numberOfWaves - 1;
             return;
         }
-
+        else if (_currentWave + 1 == _numberOfWaves)
+        {
+            _isFinalWave = true;
+        }
+        Debug.Log("Current Wave: " + _currentWave);
         _stopSpawningEnemies = false;
         _stopSpawningPowerUps = false;
         StartCoroutine(SpawnWaveRoutine(_currentWave));
-        StartCoroutine(SpawnPowerUpRoutine());
+        StartCoroutine("SpawnPowerUpRoutine");
         _uIManager.UpdateWaves(_currentWave + 1, _numberOfWaves);
         _uIManager.FlashNextWave();
     }
@@ -101,16 +122,18 @@ public class SpawnManager : MonoBehaviour
         while (_stopSpawningEnemies == false)
         {
             _currentEnemy++;
+            if (_currentEnemy > wave.enemiesToSpawn.Count - 1)
+            {
+                _stopSpawningEnemies = true;
+                yield break;
+            }
+            Debug.Log("Current Enemy: " + _currentEnemy);
             float randomX = Random.Range(-_horizontalLimits, _horizontalLimits);
             Vector2 spawnLocation = new Vector2(randomX, _spawnPoint.position.y);
             EnemyType enemyType = wave.enemiesToSpawn[_currentEnemy];
             GameObject enemyObj = enemyType.enemyPrefab;
             Instantiate(enemyObj, spawnLocation, Quaternion.identity, _enemyContainer);
             yield return new WaitForSeconds(_enemySpawnDelay);
-            if (_currentEnemy + 1 >= wave.enemiesToSpawn.Count)
-            {
-                _stopSpawningEnemies = true;
-            }
         }
     }
 
@@ -121,6 +144,10 @@ public class SpawnManager : MonoBehaviour
 
         while (_stopSpawningPowerUps == false)
         {
+            if (_isBossActive == true)
+            {
+                _numberOfRaresSpawned = -1;
+            }
             float randomDelay = Random.Range(_minPowerUpSpawnDelay, _maxPowerUpSpawnDelay);
             float randomX = Random.Range(-_horizontalLimits, _horizontalLimits);
             Vector2 spawnLocation = new Vector2(randomX, _spawnPoint.position.y);
@@ -135,6 +162,16 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+    IEnumerator SpawnBossRoutine()
+    {
+        yield return new WaitForSeconds(_enemySpawnDelay);
+        Instantiate(_bossPrefab, _bossSpawnPoint.position, Quaternion.identity, _enemyContainer);
+        _stopSpawningPowerUps = false;
+        StartCoroutine("SpawnPowerUpRoutine");
+        _isBossActive = true;
+        _countEnemies = true;
+    }
+
     public void StopSpawning()
     {
         _stopSpawningEnemies = true;
@@ -146,7 +183,7 @@ public class SpawnManager : MonoBehaviour
         if (_stopSpawningPowerUps == false)
         {
             float randomChance = Random.value;
-            GameObject selectedPowerUp = null;
+            GameObject selectedPowerUp;
             if (randomChance > _uncommonChance)
             {
                 selectedPowerUp = _commonPowerUpPrefab;

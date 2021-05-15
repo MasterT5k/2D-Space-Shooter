@@ -122,6 +122,8 @@ public abstract class Enemy : MonoBehaviour
                 }
 
                 _isShieldActive = false;
+                gameObject.GetComponent<Collider2D>().enabled = false;
+                transform.parent = null;
                 _shieldVisual.SetActive(false);
                 return;
             }
@@ -178,6 +180,7 @@ public abstract class Enemy : MonoBehaviour
             gameObject.tag = "Untagged";
             _speed = 0;
             gameObject.GetComponent<Collider2D>().enabled = false;
+            transform.parent = null;
             Destroy(gameObject, _destroyDelay);
         }
 
@@ -213,6 +216,7 @@ public abstract class Enemy : MonoBehaviour
             gameObject.tag = "Untagged";
             _speed = 0;
             gameObject.GetComponent<Collider2D>().enabled = false;
+            transform.parent = null;
             Destroy(gameObject, _destroyDelay);
         }
     }
