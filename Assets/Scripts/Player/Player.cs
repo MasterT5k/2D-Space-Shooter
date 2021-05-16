@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(BoxCollider2D))]
 public class Player : MonoBehaviour
 {
@@ -94,10 +93,11 @@ public class Player : MonoBehaviour
     private int _maxLives = 3;
     private int _lives;
     [SerializeField]
+    private GameObject _explosionPrefab = null;
+    [SerializeField]
     private GameObject[] _engineFires = null;
 
     private int _score = 0;
-    private AudioSource _source = null;
     private SpawnManager _spawnManager = null;
     private UIManager _uIManager = null;
 
@@ -122,7 +122,6 @@ public class Player : MonoBehaviour
         _shieldRenderer = _shieldVisual.GetComponent<SpriteRenderer>();
         _fullShieldColor = _shieldRenderer.color;
         _shieldVisual.SetActive(false);
-        _source = GetComponent<AudioSource>();
 
         for (int i = 0; i < _engineFires.Length; i++)
         {
@@ -132,13 +131,13 @@ public class Player : MonoBehaviour
         _spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
         if (_spawnManager == null)
         {
-            Debug.Log("SpawnManager is NULL");
+            Debug.LogError("SpawnManager is NULL");
         }
 
         _uIManager = GameObject.Find("Canvas").GetComponent<UIManager>();
         if (_uIManager == null)
         {
-            Debug.Log("UIManager is NULL");
+            Debug.LogError("UIManager is NULL");
         }
 
         _uIManager.UpdateScore(_score);
@@ -292,13 +291,11 @@ public class Player : MonoBehaviour
             if (_currentShieldStrength > 0)
             {
                 ChangeShield(_currentShieldStrength);
-                Debug.Log("Shield Hit!");
                 return;
             }
 
             _isShieldActive = false;
             _shieldVisual.SetActive(false);
-            Debug.Log("Shield Off!");
             return;
         }
 
@@ -356,7 +353,7 @@ public class Player : MonoBehaviour
         }
         else if (_lives < 1)
         {
-            Debug.Log("BOOM!");
+            Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
             _spawnManager.StopSpawning();
             Destroy(gameObject);
         }
@@ -373,7 +370,6 @@ public class Player : MonoBehaviour
         if (_isTripleShotActive == false)
         {
             _isTripleShotActive = true;
-            Debug.Log("Triple Shot On!");
             StartCoroutine(TripleShotPowerDownRoutine());
         }
         else
@@ -398,7 +394,6 @@ public class Player : MonoBehaviour
 
         _tripleShotDuration = _powerUpDuration;
         _isTripleShotActive = false;
-        Debug.Log("Triple Shot Off!");
     }
 
     public void SpeedBoostActivate()
@@ -406,7 +401,6 @@ public class Player : MonoBehaviour
         if (_isSpeedBoostActive == false)
         {
             _isSpeedBoostActive = true;
-            Debug.Log("Speed Boost On!");
             StartCoroutine(SpeedBoostPowerDownRoutine());
         }
         else
@@ -425,7 +419,6 @@ public class Player : MonoBehaviour
 
         _speedBoostDuration = _powerUpDuration;
         _isSpeedBoostActive = false;
-        Debug.Log("Speed Boost Off!");
     }
 
     public void ShieldActivate()
@@ -434,7 +427,6 @@ public class Player : MonoBehaviour
         {
             _isShieldActive = true;
             _shieldVisual.SetActive(true);
-            Debug.Log("Shield On!");
         }
 
         _currentShieldStrength = _shieldStrength;
@@ -459,7 +451,7 @@ public class Player : MonoBehaviour
 
     public void PlayClip(AudioClip clip)
     {
-        _source.PlayOneShot(clip);
+        AudioManager.Instance.PlaySFX(clip);
     }
 
     public void ChangeAmmo()
@@ -481,7 +473,6 @@ public class Player : MonoBehaviour
         if (_isOmniShotActive == false)
         {
             _isOmniShotActive = true;
-            Debug.Log("Omni-Shot On!");
             StartCoroutine(OmniShotPowerDownRoutine());
         }
         else
@@ -506,7 +497,6 @@ public class Player : MonoBehaviour
 
         _omniShotDuration = _powerUpDuration;
         _isOmniShotActive = false;
-        Debug.Log("Omni-Shot Off!");
     }
 
     public void NegativeEffectActivate()
@@ -515,7 +505,6 @@ public class Player : MonoBehaviour
         {
             _canFire += _fireDelayIncrease;
             _isNegativeEffectActive = true;
-            Debug.Log("Negative Effect On!");
             StartCoroutine(NegativeEffectPowerDownRoutine());
         }
         else
@@ -534,6 +523,5 @@ public class Player : MonoBehaviour
 
         _negativeEffectDuration = _powerUpDuration;
         _isNegativeEffectActive = false;
-        Debug.Log("Negative Effect Off!");
     }
 }

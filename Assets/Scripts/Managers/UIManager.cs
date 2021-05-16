@@ -32,6 +32,18 @@ public class UIManager : MonoBehaviour
     private float _flickerDelay = 0.5f;
     [SerializeField]
     private float _flickerDuration = 2f;
+    [SerializeField]
+    private Slider _masterVolumeSlider = null;
+    [SerializeField]
+    private Slider _musicVolumeSlider = null;
+    [SerializeField]
+    private Slider _sFXVolumeSlider = null;
+    [SerializeField]
+    private CanvasGroup _pausePanelGroup = null;
+    [SerializeField]
+    private float _fadeMultiplier = 5f;
+    private bool _pausePanelOpen = false;
+    private bool _panelAnimating = false;
 
     private GameManager _gameManager = null;
 
@@ -43,10 +55,56 @@ public class UIManager : MonoBehaviour
             Debug.Log("Game Manager is NULL");
         }
 
+        _pausePanelGroup.alpha = 0;
+        _pausePanelGroup.blocksRaycasts = false;
+        _pausePanelGroup.interactable = false;
+        _masterVolumeSlider.value = 1;
+        _musicVolumeSlider.value = 1;
+        _sFXVolumeSlider.value = 1;
+
         _gameOverText.gameObject.SetActive(false);
         _restartText.gameObject.SetActive(false);
         _nextWaveText.gameObject.SetActive(false);
         _winText.gameObject.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (_pausePanelOpen == false && _panelAnimating == true)
+        {
+            if (_pausePanelGroup.blocksRaycasts == false)
+            {
+                _pausePanelGroup.blocksRaycasts = true;
+                _gameManager.PauseGame();
+            }
+
+            _pausePanelGroup.alpha += _fadeMultiplier * Time.unscaledDeltaTime;
+            if (_pausePanelGroup.alpha >= 1f)
+            {
+                _pausePanelGroup.alpha = 1f;
+                _pausePanelGroup.interactable = true;
+                _panelAnimating = false;
+                _pausePanelOpen = true;
+            }
+        }
+        else if (_pausePanelOpen == true && _panelAnimating == true)
+        {
+            _pausePanelGroup.alpha -= _fadeMultiplier * Time.unscaledDeltaTime;
+            if (_pausePanelGroup.alpha <= 0f)
+            {
+                _pausePanelGroup.alpha = 0f;
+                _pausePanelGroup.blocksRaycasts = false;
+                _pausePanelGroup.interactable = false;
+                _panelAnimating = false;
+                _pausePanelOpen = false;
+                _gameManager.PauseGame();
+            }
+        }
+    }
+
+    public void AnimatePausePanel()
+    {
+        _panelAnimating = !_panelAnimating;
     }
 
     public void UpdateLivesImage(int lives)

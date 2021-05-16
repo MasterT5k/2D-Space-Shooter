@@ -21,6 +21,8 @@ public class BossAI : MonoBehaviour
     [SerializeField]
     private float _fireRate = 2f;
     private float _canFire;
+    [SerializeField]
+    private AudioClip _laserBeamClip = null;
 
     [SerializeField]
     private GameObject _missilePrefab = null;
@@ -92,7 +94,7 @@ public class BossAI : MonoBehaviour
         if (_currentState == EnemyState.FiringBeams && _beamsActive == false)
         {
             _beamsActive = true;
-            LaserBeams(_beamsActive);
+            LaserBeams(_beamsActive);            
 
         }
         else if (_currentState == EnemyState.FiringMissiles && Time.time >= _canFire)
@@ -111,13 +113,14 @@ public class BossAI : MonoBehaviour
         _destroyObj.RemoveAll(empty => empty == null);
         if (_destroyObj.Count <= 0)
         {
-            Debug.Log("All Emmiters Destroyed!");
+            AudioManager.Instance.StopLoopingSFX();
             _inFinalStage = true;
             return;
         }
 
         if (turnOn == true)
         {
+            AudioManager.Instance.PlayLoopingSFX(_laserBeamClip);
             for (int i = 0; i < _destroyObj.Count; i++)
             {
                 GameObject obj = _destroyObj[i].gameObject;
@@ -129,6 +132,7 @@ public class BossAI : MonoBehaviour
         }
         else
         {
+            AudioManager.Instance.StopLoopingSFX();
             for (int i = 0; i < _destroyObj.Count; i++)
             {
                 GameObject obj = _destroyObj[i].gameObject;
@@ -193,7 +197,6 @@ public class BossAI : MonoBehaviour
 
     void FinalStage()
     {
-        Debug.Log("Entered Final Stage!");
         _currentState = EnemyState.FiringMissiles;
         _reactorCoreObj.SetActive(true);
     }

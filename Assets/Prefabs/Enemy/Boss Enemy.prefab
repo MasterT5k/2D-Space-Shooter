@@ -529,6 +529,7 @@ MonoBehaviour:
   _finalPosition: {x: 0, y: 3.25}
   _stageDuration: 3
   _fireRate: 7
+  _laserBeamClip: {fileID: 8300000, guid: 5f5bdd301a4278748b9c5d944e829213, type: 3}
   _missilePrefab: {fileID: 6222265058984536144, guid: f4189ac8c665a7c4e83f16aa68f22ac6,
     type: 3}
   _missleSpawnPoints:

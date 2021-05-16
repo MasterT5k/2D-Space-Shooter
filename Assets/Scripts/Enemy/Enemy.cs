@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(Collider2D))]
 public abstract class Enemy : MonoBehaviour
 {
@@ -53,7 +52,6 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField]
     private Color _lastShieldColor;
 
-    private AudioSource _source = null;
     protected Player _player = null;
     private Animator _anim = null;
 
@@ -77,8 +75,6 @@ public abstract class Enemy : MonoBehaviour
         _shieldRenderer = _shieldVisual.GetComponent<SpriteRenderer>();
         _fullShieldColor = _shieldRenderer.color;
         ShieldChance(_chanceOfShield);
-
-        _source = GetComponent<AudioSource>();
 
         _player = GameObject.Find("Player").GetComponent<Player>();
 
@@ -123,7 +119,6 @@ public abstract class Enemy : MonoBehaviour
 
                 _isShieldActive = false;
                 gameObject.GetComponent<Collider2D>().enabled = false;
-                transform.parent = null;
                 _shieldVisual.SetActive(false);
                 return;
             }
@@ -180,7 +175,6 @@ public abstract class Enemy : MonoBehaviour
             gameObject.tag = "Untagged";
             _speed = 0;
             gameObject.GetComponent<Collider2D>().enabled = false;
-            transform.parent = null;
             Destroy(gameObject, _destroyDelay);
         }
 
@@ -208,7 +202,7 @@ public abstract class Enemy : MonoBehaviour
 
             if (_isDead == false)
             {
-                _source.Play();
+                AudioManager.Instance.PlaySFX(_explosionClip);
                 _isDead = true;
             }
 
@@ -216,7 +210,6 @@ public abstract class Enemy : MonoBehaviour
             gameObject.tag = "Untagged";
             _speed = 0;
             gameObject.GetComponent<Collider2D>().enabled = false;
-            transform.parent = null;
             Destroy(gameObject, _destroyDelay);
         }
     }
@@ -240,7 +233,7 @@ public abstract class Enemy : MonoBehaviour
 
     protected void PlayClip(AudioClip clip)
     {
-        _source.PlayOneShot(clip);
+        AudioManager.Instance.PlaySFX(clip);
     }
 
     protected void ShieldChance(float percentage)

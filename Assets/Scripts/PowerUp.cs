@@ -87,7 +87,6 @@ public class PowerUp : MonoBehaviour
                         player.NegativeEffectActivate();
                         break;
                     default:
-                        Debug.Log("Power Up ID Not Found");
                         break;
                 }
             }

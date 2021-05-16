@@ -58,7 +58,7 @@ public class SpawnManager : MonoBehaviour
         _uIManager = GameObject.Find("Canvas").GetComponent<UIManager>();
         if (_uIManager == null)
         {
-            Debug.Log("UIManager is NULL");
+            Debug.LogError("UIManager is NULL");
         }
         else
         {
@@ -104,7 +104,7 @@ public class SpawnManager : MonoBehaviour
         {
             _isFinalWave = true;
         }
-        Debug.Log("Current Wave: " + _currentWave);
+
         _stopSpawningEnemies = false;
         _stopSpawningPowerUps = false;
         StartCoroutine(SpawnWaveRoutine(_currentWave));
@@ -127,7 +127,7 @@ public class SpawnManager : MonoBehaviour
                 _stopSpawningEnemies = true;
                 yield break;
             }
-            Debug.Log("Current Enemy: " + _currentEnemy);
+
             float randomX = Random.Range(-_horizontalLimits, _horizontalLimits);
             Vector2 spawnLocation = new Vector2(randomX, _spawnPoint.position.y);
             EnemyType enemyType = wave.enemiesToSpawn[_currentEnemy];
