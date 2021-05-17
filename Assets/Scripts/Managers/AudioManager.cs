@@ -12,23 +12,35 @@ public class AudioManager : MonoBehaviour
     [SerializeField]
     private AudioSource _sFXLoopSource = null;
 
+    private static AudioManager _instance = null;
 
-    private static AudioManager _instance;
     public static AudioManager Instance
     {
         get
         {
             if (_instance == null)
             {
-                Debug.LogError("AudioManager is NULL");
+                _instance = FindObjectOfType<AudioManager>();
+                if (_instance == null)
+                {
+                    Debug.LogError("AudioManager is Null.");
+                }
             }
             return _instance;
         }
     }
 
-    private void Awake()
+    void Awake()
     {
-        _instance = this;
+        if (_instance == null)
+        {
+            _instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     public void PlaySFX(AudioClip clip)
@@ -56,6 +68,27 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    public float GetMasterVolume()
+    {
+        _audioMixer.GetFloat("MasterVolume", out float volume);
+        volume = Mathf.Pow(10, volume / 20);
+        return volume;
+    }
+
+    public float GetMusicVolume()
+    {
+        _audioMixer.GetFloat("MusicVolume", out float volume);
+        volume = Mathf.Pow(10, volume / 20);
+        return volume;
+    }
+
+    public float GetSFXVolume()
+    {
+        _audioMixer.GetFloat("SFXVolume", out float volume);
+        volume = Mathf.Pow(10, volume / 20);
+        return volume;
+    }
+
     public void SetMasterVolume(float sliderValue)
     {
         _audioMixer.SetFloat("MasterVolume", Mathf.Log10(sliderValue) * 20);
@@ -69,23 +102,5 @@ public class AudioManager : MonoBehaviour
     public void SetMusicVolume(float sliderValue)
     {
         _audioMixer.SetFloat("MusicVolume", Mathf.Log10(sliderValue) * 20);
-    }
-
-    public float GetMasterVolume()
-    {
-        _audioMixer.GetFloat("MasterVolume", out float volume);
-        return volume;
-    }
-
-    public float GetSFXVolume()
-    {
-        _audioMixer.GetFloat("SFXVolume", out float volume);
-        return volume;
-    }
-
-    public float GetMusicVolume()
-    {
-        _audioMixer.GetFloat("MusicVolume", out float volume);
-        return volume;
     }
 }

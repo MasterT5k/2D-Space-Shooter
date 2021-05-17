@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     private bool _isPaused = false;
     private UIManager _uIManager = null;
 
-    private void Start()
+    void Start()
     {
         _uIManager = GameObject.Find("Canvas").GetComponent<UIManager>();
         if (_uIManager == null)

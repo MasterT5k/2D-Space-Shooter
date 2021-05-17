@@ -202,7 +202,7 @@ public abstract class Enemy : MonoBehaviour
 
             if (_isDead == false)
             {
-                AudioManager.Instance.PlaySFX(_explosionClip);
+                PlayClip(_explosionClip);
                 _isDead = true;
             }
 

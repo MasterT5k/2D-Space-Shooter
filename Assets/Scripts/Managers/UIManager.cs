@@ -55,12 +55,12 @@ public class UIManager : MonoBehaviour
             Debug.Log("Game Manager is NULL");
         }
 
+        _masterVolumeSlider.value = AudioManager.Instance.GetMasterVolume();
+        _musicVolumeSlider.value = AudioManager.Instance.GetMusicVolume();
+        _sFXVolumeSlider.value = AudioManager.Instance.GetSFXVolume();
         _pausePanelGroup.alpha = 0;
         _pausePanelGroup.blocksRaycasts = false;
         _pausePanelGroup.interactable = false;
-        _masterVolumeSlider.value = 1;
-        _musicVolumeSlider.value = 1;
-        _sFXVolumeSlider.value = 1;
 
         _gameOverText.gameObject.SetActive(false);
         _restartText.gameObject.SetActive(false);
