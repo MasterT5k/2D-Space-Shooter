@@ -29,6 +29,11 @@ public class PowerUp : MonoBehaviour
         Negative
     }
 
+    private void OnDisable()
+    {
+        transform.position = transform.parent.position;
+    }
+
     void Start()
     {
         _playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
@@ -42,7 +47,7 @@ public class PowerUp : MonoBehaviour
 
             if (transform.position.y < _verticalLimit)
             {
-                Destroy(gameObject);
+                gameObject.SetActive(false);
             }
         }
         else
@@ -90,7 +95,7 @@ public class PowerUp : MonoBehaviour
                         break;
                 }
             }
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
     }
 
@@ -108,5 +113,10 @@ public class PowerUp : MonoBehaviour
         {
             _isMovingToPlayer = false;
         }
+    }
+
+    public int GetPowerUpType()
+    {
+        return (int)_powerUpType;
     }
 }

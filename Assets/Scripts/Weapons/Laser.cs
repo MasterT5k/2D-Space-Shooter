@@ -13,6 +13,12 @@ public class Laser : MonoBehaviour
     private int _damage = -1;
     private bool _isEnemyLaser = false;
 
+    void OnDisable()
+    {
+        transform.position = transform.parent.position;
+        _isEnemyLaser = false;
+    }
+
     void Update()
     {
         if (_isEnemyLaser == false)
@@ -31,14 +37,7 @@ public class Laser : MonoBehaviour
 
         if (transform.position.y > _yDestroyDistance)
         {
-            if (this.gameObject.transform.parent != null)
-            {
-                Destroy(this.gameObject.transform.parent.gameObject);
-            }
-            else
-            {
-                Destroy(this.gameObject);
-            }
+            gameObject.SetActive(false);
         }
     }
 
@@ -48,14 +47,7 @@ public class Laser : MonoBehaviour
 
         if (transform.position.y < -_yDestroyDistance)
         {
-            if (this.gameObject.transform.parent != null)
-            {
-                Destroy(this.gameObject.transform.parent.gameObject);
-            }
-            else
-            {
-                Destroy(this.gameObject);
-            }
+            gameObject.SetActive(false);
         }
     }
 
@@ -75,7 +67,7 @@ public class Laser : MonoBehaviour
                 player.ChangeLives(_damage);
             }
 
-            Destroy(this.gameObject);
+            gameObject.SetActive(false);
         }
     }
 }

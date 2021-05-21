@@ -96,6 +96,7 @@ GameObject:
   - component: {fileID: 1075828043597328344}
   - component: {fileID: 2785230585856787864}
   - component: {fileID: 8773882533232184354}
+  - component: {fileID: 1412462437129712689}
   m_Layer: 0
   m_Name: Mine
   m_TagString: Mine
@@ -219,9 +220,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 2
-  _explosionPrefab: {fileID: 8466023616670967949, guid: eb44554f4ff562743abbd27563503b66,
+  _explosionPrefab: {fileID: 409704734865190724, guid: eb44554f4ff562743abbd27563503b66,
     type: 3}
-  _explosionClip: {fileID: 8300000, guid: a885c043fab7e46438bba03ba9dab6bc, type: 3}
 --- !u!95 &8773882533232184354
 Animator:
   serializedVersion: 3
@@ -241,3 +241,16 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &1412462437129712689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4267028937067858197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35c9507bec3e8034b95317856b3f303a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _weaponType: 7

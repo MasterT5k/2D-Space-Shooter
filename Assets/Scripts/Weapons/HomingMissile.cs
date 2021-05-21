@@ -15,17 +15,39 @@ public class HomingMissile : MonoBehaviour
     private float _fuseTimer = 5f;
     private float _timer;
     [SerializeField]
-    private GameObject _explosionPrefab = null;
+    private Explosion _explosionPrefab = null;
     private Rigidbody2D _rigidBody;
     private bool _isEnemyMissile = false;
+    private bool _isReused = false;
+    private PoolManager _poolManager = null;
+
+    void OnDisable()
+    {
+        if (_isReused == true)
+        {
+            transform.position = transform.parent.position;
+            _isEnemyMissile = false;
+            _timer = 0;
+            _target = null;
+            _rigidBody.angularVelocity = 0;
+            transform.rotation = Quaternion.Euler(Vector3.zero); 
+        }
+    }
 
     void Start()
     {
+        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
+        if (_poolManager == null)
+        {
+            Debug.LogError("Pool Manager is NULL");
+        }
+
         _rigidBody = GetComponent<Rigidbody2D>();
         if (_isEnemyMissile == false)
         {
             AssignEnemyTarget();
         }
+        _isReused = true;
     }
 
     void Update()
@@ -33,8 +55,11 @@ public class HomingMissile : MonoBehaviour
         _timer += Time.deltaTime;
         if (_timer > _fuseTimer)
         {
-            Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
-            Destroy(this.gameObject);
+            int explosionID = _explosionPrefab.GetExplosionID();
+            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            explosion.transform.position = transform.position;
+            explosion.SetActive(true);
+            gameObject.SetActive(false);
         }
     }
 
@@ -103,7 +128,7 @@ public class HomingMissile : MonoBehaviour
                 player.ChangeLives();
             }
             Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
-            Destroy(this.gameObject);
+            gameObject.SetActive(false);
         }
     }
 }

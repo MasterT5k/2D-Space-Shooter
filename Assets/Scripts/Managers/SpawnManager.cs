@@ -37,11 +37,11 @@ public class SpawnManager : MonoBehaviour
     [Range(0f, 1f)]
     private float _rareChance = 0.1f;
     [SerializeField]
-    private GameObject _commonPowerUpPrefab = null;
+    private PowerUp _commonPowerUpPrefab = null;
     [SerializeField]
-    private GameObject[] _uncommonPowerUpPrefabs = null;
+    private PowerUp[] _uncommonPowerUpPrefabs = null;
     [SerializeField]
-    private GameObject[] _rarePowerUpPrefabs = null;
+    private PowerUp[] _rarePowerUpPrefabs = null;
     private int _numberOfRaresSpawned;
 
     private bool _isFinalWave = false;
@@ -50,9 +50,16 @@ public class SpawnManager : MonoBehaviour
     private bool _countEnemies = false;
     private bool _isBossActive = false;
     private UIManager _uIManager = null;
+    private PoolManager _poolManager = null;
 
     private void Start()
     {
+        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
+        if (_poolManager == null)
+        {
+            Debug.LogError("Pool Manager is NULL");
+        }
+
         _numberOfWaves = _waves.Length;
 
         _uIManager = GameObject.Find("Canvas").GetComponent<UIManager>();
@@ -131,8 +138,14 @@ public class SpawnManager : MonoBehaviour
             float randomX = Random.Range(-_horizontalLimits, _horizontalLimits);
             Vector2 spawnLocation = new Vector2(randomX, _spawnPoint.position.y);
             EnemyType enemyType = wave.enemiesToSpawn[_currentEnemy];
-            GameObject enemyObj = enemyType.enemyPrefab;
-            Instantiate(enemyObj, spawnLocation, Quaternion.identity, _enemyContainer);
+            int enemyID = enemyType.EnemyClass.GetEnemyID();
+            GameObject enemyObj = _poolManager.GetInactiveEnemy(enemyID);
+            if (enemyObj != null)
+            {
+                enemyObj.transform.SetParent(_enemyContainer);
+                enemyObj.transform.position = spawnLocation;
+                enemyObj.SetActive(true);
+            }
             yield return new WaitForSeconds(_enemySpawnDelay);
         }
     }
@@ -153,11 +166,11 @@ public class SpawnManager : MonoBehaviour
             Vector2 spawnLocation = new Vector2(randomX, _spawnPoint.position.y);
 
             GameObject powerUp = SelectPowerUp();
-            if (powerUp == null)
+            if (powerUp != null)
             {
-                yield break;
+                powerUp.transform.position = spawnLocation;
+                powerUp.SetActive(true);
             }
-            Instantiate(powerUp, spawnLocation, Quaternion.identity);
             yield return new WaitForSeconds(randomDelay);
         }
     }
@@ -183,11 +196,11 @@ public class SpawnManager : MonoBehaviour
         if (_stopSpawningPowerUps == false)
         {
             float randomChance = Random.value;
+            int powerUpType;
             GameObject selectedPowerUp;
             if (randomChance > _uncommonChance)
             {
-                selectedPowerUp = _commonPowerUpPrefab;
-                return selectedPowerUp;
+                powerUpType = _commonPowerUpPrefab.GetPowerUpType();
             }
             else if (randomChance <= _rareChance)
             {
@@ -196,18 +209,17 @@ public class SpawnManager : MonoBehaviour
                 if (_rarePowerUpPrefabs.Length > 1)
                 {
                     int randomPowerUp = Random.Range(0, rareLength);
-                    selectedPowerUp = _rarePowerUpPrefabs[randomPowerUp];
+                    powerUpType = _rarePowerUpPrefabs[randomPowerUp].GetPowerUpType();
                 }
                 else
                 {
-                    selectedPowerUp = _rarePowerUpPrefabs[0];
+                    powerUpType = _rarePowerUpPrefabs[0].GetPowerUpType();
                 }
 
                 if (_numberOfRaresSpawned >= _waves[_currentWave].numberOfRarePowerUps)
                 {
-                    selectedPowerUp = _commonPowerUpPrefab;
+                    powerUpType = _commonPowerUpPrefab.GetPowerUpType();
                 }
-                return selectedPowerUp;
             }
             else
             {
@@ -215,14 +227,17 @@ public class SpawnManager : MonoBehaviour
                 if (_uncommonPowerUpPrefabs.Length > 1)
                 {
                     int randomPowerUp = Random.Range(0, uncommonLength);
-                    selectedPowerUp = _uncommonPowerUpPrefabs[randomPowerUp];
+                    powerUpType = _uncommonPowerUpPrefabs[randomPowerUp].GetPowerUpType();
                 }
                 else
                 {
-                    selectedPowerUp = _uncommonPowerUpPrefabs[0];
+                    powerUpType = _uncommonPowerUpPrefabs[0].GetPowerUpType();
                 }
-                return selectedPowerUp;
             }
+
+            selectedPowerUp = _poolManager.GetInactivePowerUp(powerUpType);
+            return selectedPowerUp;
+
         }
         return null;
     }

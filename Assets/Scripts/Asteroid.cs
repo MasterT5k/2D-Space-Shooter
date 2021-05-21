@@ -7,13 +7,20 @@ public class Asteroid : MonoBehaviour
     [SerializeField]
     private float _rotSpeed = 5f;
     [SerializeField]
-    private GameObject _explosionPrefab = null;
+    private Explosion _explosionPrefab = null;
     [SerializeField]
     private float _destroyDelay = 0.5f;
     private SpawnManager _spawnManager = null;
+    private PoolManager _poolManager = null;
 
     void Start()
     {
+        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
+        if (_poolManager == null)
+        {
+            Debug.LogError("Pool Manager is NULL");
+        }
+
         _spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
         if (_spawnManager == null)
         {
@@ -30,8 +37,11 @@ public class Asteroid : MonoBehaviour
     {
         if (other.tag == "Laser")
         {
-            Destroy(other.gameObject);
-            Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
+            other.gameObject.SetActive(false);
+            int explosionID = _explosionPrefab.GetExplosionID();
+            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            explosion.transform.position = transform.position;
+            explosion.SetActive(true);
             _spawnManager.StartSpawning();
             gameObject.GetComponent<Collider2D>().enabled = false;
             Destroy(gameObject, _destroyDelay);
@@ -39,7 +49,10 @@ public class Asteroid : MonoBehaviour
 
         if (other.tag == "Omni Shot")
         {
-            Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
+            int explosionID = _explosionPrefab.GetExplosionID();
+            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            explosion.transform.position = transform.position;
+            explosion.SetActive(true);
             _spawnManager.StartSpawning();
             gameObject.GetComponent<Collider2D>().enabled = false;
             Destroy(gameObject, _destroyDelay);

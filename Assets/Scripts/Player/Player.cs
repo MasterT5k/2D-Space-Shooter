@@ -34,9 +34,9 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int _maxAmmo = 15;
     [SerializeField]
-    private Transform _spawnPoint = null;
+    private Transform[] _spawnPoints = null;
     [SerializeField]
-    private GameObject _laserPrefab = null;
+    private WeaponID _laserPrefab = null;
     [SerializeField]
     private AudioClip _laserClip = null;
     private float _canFire;
@@ -45,14 +45,11 @@ public class Player : MonoBehaviour
     [Header("PowerUp Up Settings")]
     [SerializeField]
     private float _powerUpDuration = 5f;
-    [SerializeField]
-    private GameObject _tripleLaserPrefab = null;
     private bool _isTripleShotActive = false;
     private float _tripleShotDuration;
 
     [SerializeField]
-    private GameObject _omniShotPrefab = null;
-    [SerializeField]
+    private WeaponID _omniShotPrefab = null;
     private bool _isOmniShotActive = false;
     private float _omniShotDuration;
 
@@ -76,7 +73,7 @@ public class Player : MonoBehaviour
     private float _speedBoostDuration;
 
     [SerializeField]
-    private GameObject _homingMissilePrefab = null;
+    private WeaponID _homingMissilePrefab = null;
     [SerializeField]
     private int _numberOfMissiles = 4;
     private int _currentMissiles;
@@ -93,20 +90,25 @@ public class Player : MonoBehaviour
     private int _maxLives = 3;
     private int _lives;
     [SerializeField]
-    private GameObject _explosionPrefab = null;
+    private Explosion _explosionPrefab = null;
     [SerializeField]
     private GameObject[] _engineFires = null;
 
     private int _score = 0;
     private SpawnManager _spawnManager = null;
     private UIManager _uIManager = null;
+    private PoolManager _poolManager = null;
 
 
     void Start()
     {
-        _negativeEffectDuration = _powerUpDuration;
-
         Init();
+
+        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
+        if (_poolManager == null)
+        {
+            Debug.LogError("Pool Manager is NULL");
+        }
     }
 
     void Init()
@@ -118,6 +120,7 @@ public class Player : MonoBehaviour
         _tripleShotDuration = _powerUpDuration;
         _speedBoostDuration = _powerUpDuration;
         _omniShotDuration = _powerUpDuration;
+        _negativeEffectDuration = _powerUpDuration;
 
         _shieldRenderer = _shieldVisual.GetComponent<SpriteRenderer>();
         _fullShieldColor = _shieldRenderer.color;
@@ -151,8 +154,11 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Tab) && _isHomingMissileActive == true)
         {
-            GameObject missile = Instantiate(_homingMissilePrefab, _spawnPoint.position, Quaternion.identity);
+            int weaponType = _homingMissilePrefab.GetWeaponType();            
+            GameObject missile = _poolManager.GetInactiveWeapon(weaponType);
+            missile.transform.position = _spawnPoints[0].position;
             missile.GetComponent<HomingMissile>().AssignEnemyTarget();
+            missile.SetActive(true);
             _currentMissiles--;
             if (_currentMissiles < 1)
             {
@@ -255,6 +261,7 @@ public class Player : MonoBehaviour
 
     void FireLaser()
     {
+        GameObject weapon;
         if (_isNegativeEffectActive == true || _isOmniShotActive == true)
         {
             _canFire = Time.time + _fireRate + _fireDelayIncrease;
@@ -268,15 +275,27 @@ public class Player : MonoBehaviour
 
         if (_isTripleShotActive == true)
         {
-            Instantiate(_tripleLaserPrefab, _spawnPoint.position, Quaternion.identity);
+            int weaponType = _laserPrefab.GetWeaponType();
+            for (int i = 0; i < _spawnPoints.Length; i++)
+            {                
+                weapon = _poolManager.GetInactiveLaser(weaponType);
+                weapon.transform.position = _spawnPoints[i].position;
+                weapon.SetActive(true);
+            }
         }
         else if (_isOmniShotActive == true)
         {
-            Instantiate(_omniShotPrefab, transform.position, Quaternion.identity);
+            int weaponType = _omniShotPrefab.GetWeaponType();
+            GameObject omniShot = _poolManager.GetInactiveWeapon(weaponType);
+            omniShot.transform.position = transform.position;
+            omniShot.SetActive(true);
         }
         else
         {
-            Instantiate(_laserPrefab, _spawnPoint.position, Quaternion.identity);
+            int weaponType = _laserPrefab.GetWeaponType();
+            weapon = _poolManager.GetInactiveLaser(weaponType);
+            weapon.transform.position = _spawnPoints[0].position;
+            weapon.SetActive(true);
             _currentAmmo--;
             _uIManager.UpdateAmmo(_currentAmmo, _maxAmmo);
         }
@@ -353,9 +372,12 @@ public class Player : MonoBehaviour
         }
         else if (_lives < 1)
         {
-            Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
+            int explosionID = _explosionPrefab.GetExplosionID();
+            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            explosion.transform.position = transform.position;
+            explosion.SetActive(true);
             _spawnManager.StopSpawning();
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
     }
 

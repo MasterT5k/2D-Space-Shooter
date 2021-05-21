@@ -46,6 +46,7 @@ SpriteRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -93,6 +94,7 @@ GameObject:
   - component: {fileID: 3799272779583548596}
   - component: {fileID: 5098390604619920657}
   - component: {fileID: 6787566120721797143}
+  - component: {fileID: -2154504217667758000}
   m_Layer: 0
   m_Name: Laser
   m_TagString: Laser
@@ -174,4 +176,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0963c3ab58dace24385693b6b69f3ecc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 8
+  _speed: 8
+  _yDestroyDistance: 12
+  _damage: -1
+--- !u!114 &-2154504217667758000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8664767096302091753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35c9507bec3e8034b95317856b3f303a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _weaponType: 0

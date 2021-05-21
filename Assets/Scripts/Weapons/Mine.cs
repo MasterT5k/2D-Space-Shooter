@@ -8,15 +8,33 @@ public class Mine : MonoBehaviour
     [SerializeField]
     private float _speed = 2f;
     [SerializeField]
-    private GameObject _explosionPrefab = null;
+    private Explosion _explosionPrefab = null;
 
     private bool _isStopped = false;
+    private bool _isReused = false;
     private Rigidbody2D _rigidbody = null;
     private Transform _target = null;
+    private PoolManager _poolManager = null;
+
+    private void OnDisable()
+    {
+        if (_isReused == true)
+        {
+            transform.position = transform.parent.position;
+        }
+    }
 
     void Start()
     {
+        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
+        if (_poolManager == null)
+        {
+            Debug.LogError("Pool Manager is NULL");
+        }
+
         _rigidbody = GetComponent<Rigidbody2D>();
+
+        _isReused = true;
     }
 
     void FixedUpdate()
@@ -67,22 +85,31 @@ public class Mine : MonoBehaviour
             if (player != null)
             {
                 player.ChangeLives();
-                Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
             }
-            Destroy(gameObject);
+            int explosionID = _explosionPrefab.GetExplosionID();
+            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            explosion.transform.position = transform.position;
+            explosion.SetActive(true);
+            gameObject.SetActive(false);
         }
 
         if (other.tag == "Laser")
         {
-            Destroy(other.gameObject);
-            Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
-            Destroy(gameObject);
+            other.gameObject.SetActive(false);
+            int explosionID = _explosionPrefab.GetExplosionID();
+            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            explosion.transform.position = transform.position;
+            explosion.SetActive(true);
+            gameObject.SetActive(false);
         }
 
         if (other.tag == "Omni Shot")
         {
-            Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
-            Destroy(gameObject);
+            int explosionID = _explosionPrefab.GetExplosionID();
+            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            explosion.transform.position = transform.position;
+            explosion.SetActive(true);
+            gameObject.SetActive(false);
         }
     }
 }

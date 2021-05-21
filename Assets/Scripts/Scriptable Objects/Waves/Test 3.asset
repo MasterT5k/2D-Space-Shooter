@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Test 3
   m_EditorClassIdentifier: 
   enemiesToSpawn:
-  - {fileID: 11400000, guid: 84132a4f29c0b3d42aba406d2ad0b45e, type: 2}
+  - {fileID: 11400000, guid: 6b757abc8c8436841a4658728308e0d6, type: 2}
   numberOfRarePowerUps: 2

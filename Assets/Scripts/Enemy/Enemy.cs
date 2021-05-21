@@ -11,6 +11,7 @@ public abstract class Enemy : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField]
     private float _speed = 4f;
+    private float _baseSpeed;
     [SerializeField]
     protected float _horizontalLimits = 8;
     [SerializeField]
@@ -25,9 +26,9 @@ public abstract class Enemy : MonoBehaviour
 
     [Header("Shooting Settings")]
     [SerializeField]
-    protected GameObject _laserPrefab;
+    protected WeaponID _laserPrefab;
     [SerializeField]
-    protected Transform _laserSpawn;
+    protected Transform[] _laserSpawns;
     [SerializeField]
     protected AudioClip _laserClip = null;
     [SerializeField]
@@ -52,12 +53,30 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField]
     private Color _lastShieldColor;
 
+    private bool _isReused = false;
     protected Player _player = null;
     private Animator _anim = null;
+    protected PoolManager _poolManager = null;
+
+    void OnEnable()
+    {
+        if (_isReused == true)
+        {
+            _isDead = false;
+            ShieldChance(_chanceOfShield);
+        }
+    }
 
     protected virtual void Start()
     {
+        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
+        if (_poolManager == null)
+        {
+            Debug.LogError("Pool Manager is NULL");
+        }
+        _baseSpeed = _speed;
         Init();
+        _isReused = true;
     }
 
     protected virtual void Update()
@@ -118,7 +137,6 @@ public abstract class Enemy : MonoBehaviour
                 }
 
                 _isShieldActive = false;
-                gameObject.GetComponent<Collider2D>().enabled = false;
                 _shieldVisual.SetActive(false);
                 return;
             }
@@ -138,12 +156,12 @@ public abstract class Enemy : MonoBehaviour
             gameObject.tag = "Untagged";
             _speed = 0;
             gameObject.GetComponent<Collider2D>().enabled = false;
-            Destroy(gameObject, _destroyDelay);
+            StartCoroutine(DisableRoutine());
         }
 
         if (other.tag == "Laser")
         {
-            Destroy(other.gameObject);
+            other.gameObject.SetActive(false);
 
             if (_isShieldActive == true)
             {
@@ -175,7 +193,7 @@ public abstract class Enemy : MonoBehaviour
             gameObject.tag = "Untagged";
             _speed = 0;
             gameObject.GetComponent<Collider2D>().enabled = false;
-            Destroy(gameObject, _destroyDelay);
+            StartCoroutine(DisableRoutine());
         }
 
         if (other.tag == "Player")
@@ -210,7 +228,7 @@ public abstract class Enemy : MonoBehaviour
             gameObject.tag = "Untagged";
             _speed = 0;
             gameObject.GetComponent<Collider2D>().enabled = false;
-            Destroy(gameObject, _destroyDelay);
+            StartCoroutine(DisableRoutine());
         }
     }
 
@@ -221,13 +239,14 @@ public abstract class Enemy : MonoBehaviour
 
         PlayClip(_laserClip);
 
-        GameObject enemyLaser = Instantiate(_laserPrefab, _laserSpawn.position, Quaternion.identity);
-
-        Laser[] lasers = enemyLaser.GetComponentsInChildren<Laser>();
-
-        for (int i = 0; i < lasers.Length; i++)
+        GameObject enemyLaser;
+        for (int i = 0; i < _laserSpawns.Length; i++)
         {
-            lasers[i].AssignEnemyLaser();
+            int weaponType = _laserPrefab.GetWeaponType();
+            enemyLaser = _poolManager.GetInactiveLaser(weaponType);
+            enemyLaser.GetComponent<Laser>().AssignEnemyLaser();
+            enemyLaser.transform.position = _laserSpawns[i].position;            
+            enemyLaser.SetActive(true); 
         }
     }
 
@@ -272,5 +291,16 @@ public abstract class Enemy : MonoBehaviour
     public int GetEnemyID()
     {
         return _enemyID;
+    }
+
+    IEnumerator DisableRoutine()
+    {
+        yield return new WaitForSeconds(_destroyDelay);
+        _speed = _baseSpeed;
+        _anim.SetTrigger("Destroyed");
+        gameObject.GetComponent<Collider2D>().enabled = true;
+        _poolManager.PutEnemyInHolder(this.gameObject);
+        gameObject.tag = "Enemy";
+        gameObject.SetActive(false);
     }
 }

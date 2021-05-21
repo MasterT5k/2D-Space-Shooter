@@ -390,5 +390,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _startingHealth: 1
   _beamObj: {fileID: 4821090586576695328}
-  _explosionPrefab: {fileID: 8466023616670967949, guid: eb44554f4ff562743abbd27563503b66,
+  _explosionPrefab: {fileID: 409704734865190724, guid: 181d814d6627ea94289f126f0223c65c,
     type: 3}

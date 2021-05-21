@@ -11,10 +11,17 @@ public class BeamEmitter : MonoBehaviour
     [SerializeField]
     private GameObject _beamObj = null;
     [SerializeField]
-    private GameObject _explosionPrefab = null;
+    private Explosion _explosionPrefab = null;
+    private PoolManager _poolManager = null;
 
     void Start()
     {
+        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
+        if (_poolManager == null)
+        {
+            Debug.LogError("Pool Manager is NULL");
+        }
+
         _currentHealth = _startingHealth;
         _beamObj.GetComponent<LaserBeam>().AssignEnemyBeam();
         _beamObj.SetActive(false);
@@ -25,7 +32,10 @@ public class BeamEmitter : MonoBehaviour
         _currentHealth += amount;
         if (_currentHealth <= 0)
         {
-            Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
+            int explosionID = _explosionPrefab.GetExplosionID();
+            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            explosion.transform.position = transform.position;
+            explosion.SetActive(true);
             Destroy(this.gameObject);
         }
     }
@@ -58,7 +68,7 @@ public class BeamEmitter : MonoBehaviour
 
         if (other.tag == "Laser")
         {
-            Destroy(other.gameObject);
+            other.gameObject.SetActive(false);
             Damage();
         }
 

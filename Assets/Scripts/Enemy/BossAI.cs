@@ -25,9 +25,9 @@ public class BossAI : MonoBehaviour
     private AudioClip _laserBeamClip = null;
 
     [SerializeField]
-    private GameObject _missilePrefab = null;
+    private WeaponID _missilePrefab = null;
     [SerializeField]
-    private Transform[] _missleSpawnPoints = null;
+    private Transform[] _missileSpawnPoints = null;
 
     [SerializeField]
     private List<BeamEmitter> _destroyObj = new List<BeamEmitter>();
@@ -40,11 +40,12 @@ public class BossAI : MonoBehaviour
     [SerializeField]
     private GameObject _reactorCoreObj = null;
     [SerializeField]
-    private GameObject _explosionPrefab = null;
+    private Explosion _explosionPrefab = null;
 
     private bool _inFinalStage = false;
 
     private Player _player = null;
+    private PoolManager _poolManager = null;
 
     private EnemyState _currentState = EnemyState.Idle;
     private enum EnemyState
@@ -56,10 +57,16 @@ public class BossAI : MonoBehaviour
 
     void Start()
     {
-        _player = GameObject.Find("Player").GetComponent<Player>();
-        if (_player == null)
+        GameObject playerObj = GameObject.Find("Player");
+        
+        if (playerObj != null)
         {
-            Debug.LogError("Player is Null.");
+            _player = playerObj.GetComponent<Player>();
+        }
+        else
+        {
+            Debug.Log("Player is dead!");
+            gameObject.SetActive(false);
         }
 
         if (_destroyObj.Count > 0)
@@ -69,6 +76,12 @@ public class BossAI : MonoBehaviour
             {
                 _destroyObj[i].gameObject.SetActive(true);
             }
+        }
+
+        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
+        if (_poolManager == null)
+        {
+            Debug.LogError("Pool Manager is NULL");
         }
 
         _currentReactorHealth = _reactorHealth;
@@ -148,25 +161,28 @@ public class BossAI : MonoBehaviour
     {
         _canFire = _fireRate + Time.time;
 
-        if (_missleSpawnPoints.Length >= 2)
+        if (_missileSpawnPoints.Length >= 2)
         {
-            Vector3 spawnPoint;
             GameObject missile;
-            for (int i = 0; i < _missleSpawnPoints.Length; i++)
+            for (int i = 0; i < _missileSpawnPoints.Length; i++)
             {
-                spawnPoint = _missleSpawnPoints[i].position;
-                missile = Instantiate(_missilePrefab, spawnPoint, transform.rotation);
+                int weaponType = _missilePrefab.GetWeaponType();
+                missile = _poolManager.GetInactiveWeapon(weaponType);
+                missile.transform.position = _missileSpawnPoints[0].position;
+                missile.SetActive(true);
                 if (_player != null)
                 {
                     missile.GetComponent<HomingMissile>().AssignEnemyMissile(_player.transform); 
                 }
             } 
         }
-        else if (_missleSpawnPoints.Length > 0)
+        else if (_missileSpawnPoints.Length > 0)
         {
             GameObject missile;
-            Vector3 spawnPoint = _missleSpawnPoints[0].position;
-            missile = Instantiate(_missilePrefab, spawnPoint, Quaternion.identity);
+            int weaponType = _missilePrefab.GetWeaponType();
+            missile = _poolManager.GetInactiveWeapon(weaponType);
+            missile.transform.position = _missileSpawnPoints[0].position;
+            missile.SetActive(true);
             if (_player != null)
             {
                 missile.GetComponent<HomingMissile>().AssignEnemyMissile(_player.transform);
@@ -206,8 +222,11 @@ public class BossAI : MonoBehaviour
         _currentReactorHealth += amount;
         if (_currentReactorHealth <= 0)
         {
-            Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
-            Destroy(this.gameObject);
+            int explosionID = _explosionPrefab.GetExplosionID();
+            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            explosion.transform.position = transform.position;
+            explosion.SetActive(true);
+            gameObject.SetActive(false);
         }
     }
 
@@ -215,7 +234,7 @@ public class BossAI : MonoBehaviour
     {
         if (other.tag == "Laser")
         {
-            Destroy(other.gameObject);
+            other.gameObject.SetActive(false);
             DamageCore();
         }
 
