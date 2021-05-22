@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,13 +9,20 @@ public class Mine : MonoBehaviour
     [SerializeField]
     private float _speed = 2f;
     [SerializeField]
+    private int _damage = 1;
+    [SerializeField]
+    private int _scoreValue = 5;
+    [SerializeField]
     private Explosion _explosionPrefab = null;
 
     private bool _isStopped = false;
     private bool _isReused = false;
     private Rigidbody2D _rigidbody = null;
     private Transform _target = null;
-    private PoolManager _poolManager = null;
+
+    public static event Action<int> OnScored;
+    public static event Action<int> OnDamagePlayer;
+    public static event Func<int, GameObject> OnGetExplosion;
 
     private void OnDisable()
     {
@@ -26,12 +34,6 @@ public class Mine : MonoBehaviour
 
     void Start()
     {
-        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
-        if (_poolManager == null)
-        {
-            Debug.LogError("Pool Manager is NULL");
-        }
-
         _rigidbody = GetComponent<Rigidbody2D>();
 
         _isReused = true;
@@ -81,23 +83,23 @@ public class Mine : MonoBehaviour
     {
         if (other.tag == "Player")
         {
-            Player player = other.GetComponent<Player>();
-            if (player != null)
-            {
-                player.ChangeLives();
-            }
+            OnDamagePlayer?.Invoke(-_damage);
             int explosionID = _explosionPrefab.GetExplosionID();
-            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
-            explosion.transform.position = transform.position;
-            explosion.SetActive(true);
+            GameObject explosion = OnGetExplosion?.Invoke(explosionID);
+            if (explosion != null)
+            {
+                explosion.transform.position = transform.position;
+                explosion.SetActive(true); 
+            }
             gameObject.SetActive(false);
         }
 
         if (other.tag == "Laser")
         {
+            OnScored?.Invoke(_scoreValue);
             other.gameObject.SetActive(false);
             int explosionID = _explosionPrefab.GetExplosionID();
-            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            GameObject explosion = OnGetExplosion?.Invoke(explosionID);
             explosion.transform.position = transform.position;
             explosion.SetActive(true);
             gameObject.SetActive(false);
@@ -105,8 +107,9 @@ public class Mine : MonoBehaviour
 
         if (other.tag == "Omni Shot")
         {
+            OnScored?.Invoke(_scoreValue);
             int explosionID = _explosionPrefab.GetExplosionID();
-            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            GameObject explosion = OnGetExplosion?.Invoke(explosionID);
             explosion.transform.position = transform.position;
             explosion.SetActive(true);
             gameObject.SetActive(false);

@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Collider2D))]
 public abstract class Enemy : MonoBehaviour
@@ -16,8 +18,12 @@ public abstract class Enemy : MonoBehaviour
     protected float _horizontalLimits = 8;
     [SerializeField]
     private float _verticalLimits = -8f;
+    [SerializeField]
+    private int _ramDamage = 1;
 
     [Header("Death Settings")]
+    [SerializeField]
+    private int _scoreValue = 10;
     [SerializeField]
     private float _destroyDelay = 2.6f;
     [SerializeField]
@@ -56,7 +62,14 @@ public abstract class Enemy : MonoBehaviour
     private bool _isReused = false;
     protected Player _player = null;
     private Animator _anim = null;
-    protected PoolManager _poolManager = null;
+
+    public static event Action<GameObject> OnDestroyed;
+    public static event Action<AudioClip> OnPlaySFX;
+    public static event Action<int> OnScored;
+    public static event Action<int> OnDamagePlayer;
+    public static event Func<int, GameObject> OnGetLaser;
+    public static event Func<int, GameObject> OnGetWeapon;
+    public static event Func<Player> OnGetPlayerScript;
 
     void OnEnable()
     {
@@ -69,11 +82,6 @@ public abstract class Enemy : MonoBehaviour
 
     protected virtual void Start()
     {
-        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
-        if (_poolManager == null)
-        {
-            Debug.LogError("Pool Manager is NULL");
-        }
         _baseSpeed = _speed;
         Init();
         _isReused = true;
@@ -95,7 +103,7 @@ public abstract class Enemy : MonoBehaviour
         _fullShieldColor = _shieldRenderer.color;
         ShieldChance(_chanceOfShield);
 
-        _player = GameObject.Find("Player").GetComponent<Player>();
+        _player = OnGetPlayerScript?.Invoke();
 
         _anim = GetComponentInChildren<Animator>();
         if (_anim == null)
@@ -141,9 +149,9 @@ public abstract class Enemy : MonoBehaviour
                 return;
             }
 
-            if (_player != null)
+            if (_player.gameObject.activeInHierarchy == true)
             {
-                _player.AddScore();
+                OnScored?.Invoke(_scoreValue);
             }
 
             if (_isDead == false)
@@ -153,7 +161,6 @@ public abstract class Enemy : MonoBehaviour
             }
 
             _anim.SetTrigger("Destroyed");
-            gameObject.tag = "Untagged";
             _speed = 0;
             gameObject.GetComponent<Collider2D>().enabled = false;
             StartCoroutine(DisableRoutine());
@@ -178,9 +185,9 @@ public abstract class Enemy : MonoBehaviour
                 return;
             }
 
-            if (_player != null)
+            if (_player.gameObject.activeInHierarchy == true)
             {
-                _player.AddScore();
+                OnScored?.Invoke(_scoreValue);
             }
 
             if (_isDead == false)
@@ -190,7 +197,6 @@ public abstract class Enemy : MonoBehaviour
             }
 
             _anim.SetTrigger("Destroyed");
-            gameObject.tag = "Untagged";
             _speed = 0;
             gameObject.GetComponent<Collider2D>().enabled = false;
             StartCoroutine(DisableRoutine());
@@ -198,9 +204,9 @@ public abstract class Enemy : MonoBehaviour
 
         if (other.tag == "Player")
         {
-            if (_player != null)
+            if (_player.gameObject.activeInHierarchy == true)
             {
-                _player.ChangeLives();
+                OnDamagePlayer?.Invoke(-_ramDamage);
             }
 
             if (_isShieldActive == true)
@@ -225,7 +231,6 @@ public abstract class Enemy : MonoBehaviour
             }
 
             _anim.SetTrigger("Destroyed");
-            gameObject.tag = "Untagged";
             _speed = 0;
             gameObject.GetComponent<Collider2D>().enabled = false;
             StartCoroutine(DisableRoutine());
@@ -243,16 +248,19 @@ public abstract class Enemy : MonoBehaviour
         for (int i = 0; i < _laserSpawns.Length; i++)
         {
             int weaponType = _laserPrefab.GetWeaponType();
-            enemyLaser = _poolManager.GetInactiveLaser(weaponType);
-            enemyLaser.GetComponent<Laser>().AssignEnemyLaser();
-            enemyLaser.transform.position = _laserSpawns[i].position;            
-            enemyLaser.SetActive(true); 
+            enemyLaser = OnGetLaser?.Invoke(weaponType);
+            if (enemyLaser != null)
+            {
+                enemyLaser.GetComponent<Laser>().AssignEnemyLaser();
+                enemyLaser.transform.position = _laserSpawns[i].position;
+                enemyLaser.SetActive(true);
+            } 
         }
     }
 
     protected void PlayClip(AudioClip clip)
     {
-        AudioManager.Instance.PlaySFX(clip);
+        OnPlaySFX?.Invoke(clip);
     }
 
     protected void ShieldChance(float percentage)
@@ -288,6 +296,27 @@ public abstract class Enemy : MonoBehaviour
         }
     }
 
+    protected GameObject GetLaser()
+    {
+        int weaponID = _laserPrefab.GetWeaponType();
+        GameObject laser = OnGetLaser?.Invoke(weaponID);
+        if (laser != null)
+        {
+            return laser; 
+        }
+        return null;
+    }
+
+    protected GameObject GetWeapon(int weaponType)
+    {
+        GameObject weapon = OnGetWeapon?.Invoke(weaponType);
+        if (weapon != null)
+        {
+            return weapon;
+        }
+        return null;
+    }
+
     public int GetEnemyID()
     {
         return _enemyID;
@@ -295,12 +324,11 @@ public abstract class Enemy : MonoBehaviour
 
     IEnumerator DisableRoutine()
     {
+        OnDestroyed?.Invoke(this.gameObject);
         yield return new WaitForSeconds(_destroyDelay);
         _speed = _baseSpeed;
         _anim.SetTrigger("Destroyed");
         gameObject.GetComponent<Collider2D>().enabled = true;
-        _poolManager.PutEnemyInHolder(this.gameObject);
-        gameObject.tag = "Enemy";
         gameObject.SetActive(false);
     }
 }

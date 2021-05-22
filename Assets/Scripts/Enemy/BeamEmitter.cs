@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,19 +10,38 @@ public class BeamEmitter : MonoBehaviour
     private int _startingHealth = 3;
     private int _currentHealth;
     [SerializeField]
+    private int _scoreValue = 20;
+    [SerializeField]
     private GameObject _beamObj = null;
     [SerializeField]
     private Explosion _explosionPrefab = null;
-    private PoolManager _poolManager = null;
+    private Collider2D _collider = null;
+
+    public static event Action<GameObject> OnActivated;
+    public static event Action<GameObject> OnDestroyed;
+    public static event Action<int> OnDamagePlayer;
+    public static event Action<int> OnScored;
+    public static event Func<int, GameObject> OnGetExplosion;
+
+    private void Awake()
+    {
+        _collider = GetComponent<Collider2D>();
+    }
+
+    void OnEnable()
+    {
+        _collider.enabled = false;
+        OnActivated?.Invoke(this.gameObject);
+        _currentHealth = _startingHealth;
+    }
+
+    void OnDisable()
+    {
+        _beamObj.SetActive(false);
+    }
 
     void Start()
     {
-        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
-        if (_poolManager == null)
-        {
-            Debug.LogError("Pool Manager is NULL");
-        }
-
         _currentHealth = _startingHealth;
         _beamObj.GetComponent<LaserBeam>().AssignEnemyBeam();
         _beamObj.SetActive(false);
@@ -33,10 +53,15 @@ public class BeamEmitter : MonoBehaviour
         if (_currentHealth <= 0)
         {
             int explosionID = _explosionPrefab.GetExplosionID();
-            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
-            explosion.transform.position = transform.position;
-            explosion.SetActive(true);
-            Destroy(this.gameObject);
+            GameObject explosion = OnGetExplosion?.Invoke(explosionID);
+            if (explosion != null)
+            {
+                explosion.transform.position = transform.position;
+                explosion.SetActive(true);
+            }
+            OnScored?.Invoke(_scoreValue);
+            OnDestroyed?.Invoke(this.gameObject);
+            gameObject.SetActive(false);
         }
     }
 
@@ -52,17 +77,16 @@ public class BeamEmitter : MonoBehaviour
         }
     }
 
+    public void ActivateCollider()
+    {
+        _collider.enabled = true;
+    }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.tag == "Player")
         {
-            Player player = other.transform.GetComponent<Player>();
-
-            if (player != null)
-            {
-                player.ChangeLives();
-            }
-
+            OnDamagePlayer?.Invoke(-1);
             Damage();
         }
 

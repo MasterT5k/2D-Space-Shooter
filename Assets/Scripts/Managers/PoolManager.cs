@@ -50,6 +50,48 @@ public class PoolManager : MonoBehaviour
     private Transform _explosionHolder = null;
     private List<GameObject> _explosionPool = new List<GameObject>();
 
+    void OnEnable()
+    {
+        SpawnManager.OnGetEnemy += GetInactiveEnemy;
+        SpawnManager.OnGetPowerUp += GetInactivePowerUp;
+
+        Player.OnGetExplosion += GetInactiveExplosion;
+        Player.OnGetLaser += GetInactiveLaser;
+        Player.OnGetWeapon += GetInactiveWeapon;
+
+        Enemy.OnGetLaser += GetInactiveLaser;
+        Enemy.OnGetWeapon += GetInactiveWeapon;
+
+        BossAI.OnGetExplosion += GetInactiveExplosion;
+        BossAI.OnGetWeapon += GetInactiveWeapon;
+
+        Asteroid.OnGetExplosion += GetInactiveExplosion;
+        HomingMissile.OnGetExplosion += GetInactiveExplosion;
+        Mine.OnGetExplosion += GetInactiveExplosion;
+        BeamEmitter.OnGetExplosion += GetInactiveExplosion;
+    }
+
+    void OnDisable()
+    {
+        SpawnManager.OnGetEnemy -= GetInactiveEnemy;
+        SpawnManager.OnGetPowerUp -= GetInactivePowerUp;
+
+        Player.OnGetExplosion -= GetInactiveExplosion;
+        Player.OnGetLaser -= GetInactiveLaser;
+        Player.OnGetWeapon -= GetInactiveWeapon;
+
+        Enemy.OnGetLaser -= GetInactiveLaser;
+        Enemy.OnGetWeapon -= GetInactiveWeapon;
+
+        BossAI.OnGetExplosion -= GetInactiveExplosion;
+        BossAI.OnGetWeapon -= GetInactiveWeapon;
+
+        Asteroid.OnGetExplosion -= GetInactiveExplosion;
+        HomingMissile.OnGetExplosion -= GetInactiveExplosion;
+        Mine.OnGetExplosion -= GetInactiveExplosion;
+        BeamEmitter.OnGetExplosion -= GetInactiveExplosion;
+    }
+
     void Start()
     {
         _enemyPool = GeneratePool(_enemyPool, _enemyPrefabs, _enemiesToPool, _enemyHolder);
@@ -247,11 +289,5 @@ public class PoolManager : MonoBehaviour
             }
         }
         return null;
-    }
-
-    public void PutEnemyInHolder(GameObject enemy)
-    {
-        enemy.transform.SetParent(_enemyHolder);
-        enemy.transform.position = _enemyHolder.position;
     }
 }

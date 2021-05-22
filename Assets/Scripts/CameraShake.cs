@@ -10,6 +10,16 @@ public class CameraShake : MonoBehaviour
     private float _duration = 0.15f;
     private bool _isShakeRunning = false;
 
+    void OnEnable()
+    {
+        Player.OnCameraShake += ShakeCamera;
+    }
+
+    void OnDisable()
+    {
+        Player.OnCameraShake -= ShakeCamera;
+    }
+
     public void ShakeCamera()
     {
         if (_isShakeRunning == false)

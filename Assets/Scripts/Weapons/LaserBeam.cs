@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,7 +6,11 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
 public class LaserBeam : MonoBehaviour
 {
+    [SerializeField]
+    private int _damage = 1;
     private bool _isEnemyBeam = false;
+
+    public static event Action<int> OnDamagePlayer;
 
     public void AssignEnemyBeam()
     {
@@ -16,12 +21,7 @@ public class LaserBeam : MonoBehaviour
     {
         if (other.tag == "Player" && _isEnemyBeam == true)
         {
-            Player player = other.transform.GetComponent<Player>();
-
-            if (player != null)
-            {
-                player.ChangeLives();
-            }
+            OnDamagePlayer?.Invoke(-_damage);
         }
     }
 }

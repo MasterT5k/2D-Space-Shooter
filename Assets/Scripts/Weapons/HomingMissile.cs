@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +13,8 @@ public class HomingMissile : MonoBehaviour
     [SerializeField]
     private float _rotationSpeed = 200f;
     [SerializeField]
+    private int _damage = 1;
+    [SerializeField]
     private float _fuseTimer = 5f;
     private float _timer;
     [SerializeField]
@@ -19,34 +22,49 @@ public class HomingMissile : MonoBehaviour
     private Rigidbody2D _rigidBody;
     private bool _isEnemyMissile = false;
     private bool _isReused = false;
-    private PoolManager _poolManager = null;
+
+    public static event Action<int> OnDamagePlayer;
+    public static event Func<List<GameObject>> OnGetTargetList;
+    public static event Func<int, GameObject> OnGetExplosion;
+
+    private void OnEnable()
+    {
+        Enemy.OnDestroyed += RemoveTarget;
+        Player.OnRemoveTarget += RemoveTarget;
+    }
 
     void OnDisable()
     {
+        Enemy.OnDestroyed -= RemoveTarget;
+        Player.OnRemoveTarget -= RemoveTarget;
+
         if (_isReused == true)
         {
+            int explosionID = _explosionPrefab.GetExplosionID();
+            GameObject explosion = OnGetExplosion(explosionID);
+            if (explosion != null)
+            {
+                explosion.transform.position = transform.position;
+                explosion.SetActive(true);
+            }
             transform.position = transform.parent.position;
             _isEnemyMissile = false;
             _timer = 0;
             _target = null;
             _rigidBody.angularVelocity = 0;
-            transform.rotation = Quaternion.Euler(Vector3.zero); 
+            transform.rotation = Quaternion.Euler(Vector3.zero);
         }
     }
 
     void Start()
     {
-        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
-        if (_poolManager == null)
-        {
-            Debug.LogError("Pool Manager is NULL");
-        }
-
         _rigidBody = GetComponent<Rigidbody2D>();
+
         if (_isEnemyMissile == false)
         {
             AssignEnemyTarget();
         }
+
         _isReused = true;
     }
 
@@ -55,10 +73,6 @@ public class HomingMissile : MonoBehaviour
         _timer += Time.deltaTime;
         if (_timer > _fuseTimer)
         {
-            int explosionID = _explosionPrefab.GetExplosionID();
-            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
-            explosion.transform.position = transform.position;
-            explosion.SetActive(true);
             gameObject.SetActive(false);
         }
     }
@@ -74,6 +88,7 @@ public class HomingMissile : MonoBehaviour
         }
         else if (_target == null && _isEnemyMissile == false)
         {
+            _rigidBody.angularVelocity = 0;
             AssignEnemyTarget();
         }
         else
@@ -86,26 +101,25 @@ public class HomingMissile : MonoBehaviour
     public void AssignEnemyTarget()
     {
         Transform enemy = null;
-        float distance;
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        for (int i = 0; i < enemies.Length; i++)
+        float distance = Mathf.Infinity;
+        List<GameObject> enemyList = OnGetTargetList?.Invoke();
+        for (int i = 0; i < enemyList.Count; i++)
         {
             if (enemy == null)
             {
-                enemy = enemies[i].transform;
+                enemy = enemyList[i].transform;
+                distance = Vector3.Distance(enemy.position, transform.position);
                 continue;
             }
-
-            distance = Vector3.Distance(enemy.position, transform.position);
-            float nextDistance = Vector3.Distance(enemies[i].transform.position, transform.position);
+            
+            float nextDistance = Vector3.Distance(enemyList[i].transform.position, transform.position);
 
             if (nextDistance < distance)
             {
                 distance = nextDistance;
-                enemy = enemies[i].transform;
+                enemy = enemyList[i].transform;
             }
         }
-
         _target = enemy;
     }
 
@@ -122,13 +136,16 @@ public class HomingMissile : MonoBehaviour
     {
         if (other.tag == "Player" && _isEnemyMissile == true)
         {
-            Player player = other.GetComponent<Player>();
-            if (player != null)
-            {
-                player.ChangeLives();
-            }
-            Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
+            OnDamagePlayer?.Invoke(-_damage);
             gameObject.SetActive(false);
+        }
+    }
+
+    private void RemoveTarget(GameObject target)
+    {
+        if (_target == target.transform)
+        {
+            _target = null;
         }
     }
 }

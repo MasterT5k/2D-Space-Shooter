@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ public class Laser : MonoBehaviour
     [SerializeField]
     private int _damage = -1;
     private bool _isEnemyLaser = false;
+
+    public static event Action<int> OnDamagePlayer;
 
     void OnDisable()
     {
@@ -60,13 +63,7 @@ public class Laser : MonoBehaviour
     {
         if (other.tag == "Player" && _isEnemyLaser == true)
         {
-            Player player = other.transform.GetComponent<Player>();
-
-            if (player != null)
-            {
-                player.ChangeLives(_damage);
-            }
-
+            OnDamagePlayer?.Invoke(_damage);
             gameObject.SetActive(false);
         }
     }

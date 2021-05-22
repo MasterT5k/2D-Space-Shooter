@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -94,26 +95,50 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject[] _engineFires = null;
 
-    private int _score = 0;
-    private SpawnManager _spawnManager = null;
-    private UIManager _uIManager = null;
-    private PoolManager _poolManager = null;
+    public static event Action OnCameraShake;
+    public static event Action<int> OnUpdateLives;
+    public static event Action<float, float> OnUpdateThuster;
+    public static event Action<int, int> OnUpdateAmmo;
+    public static event Action<int, int> OnUpdateMissiles;
+    public static event Action<GameObject> OnRemoveTarget;
+    public static event Action OnDeath;
+    public static event Action<AudioClip> OnPlaySFX;
+    public static event Func<int, GameObject> OnGetLaser;
+    public static event Func<int, GameObject> OnGetWeapon;
+    public static event Func<int, GameObject> OnGetExplosion;
 
+    void OnEnable()
+    {
+        GameManager.OnGetPlayerObj += GivePlayerObj;
+        Enemy.OnDamagePlayer += ChangeLives;
+        Laser.OnDamagePlayer += ChangeLives;
+        HomingMissile.OnDamagePlayer += ChangeLives;
+        BeamEmitter.OnDamagePlayer += ChangeLives;
+        LaserBeam.OnDamagePlayer += ChangeLives;
+        Mine.OnDamagePlayer += ChangeLives;
+        BossAI.OnDestroyed += GameWon;
+    }
+
+    void OnDisable()
+    {
+        GameManager.OnGetPlayerObj -= GivePlayerObj;
+        Enemy.OnDamagePlayer -= ChangeLives;
+        Laser.OnDamagePlayer -= ChangeLives;
+        HomingMissile.OnDamagePlayer -= ChangeLives;
+        BeamEmitter.OnDamagePlayer -= ChangeLives;
+        LaserBeam.OnDamagePlayer -= ChangeLives;
+        Mine.OnDamagePlayer -= ChangeLives;
+        BossAI.OnDestroyed -= GameWon;
+    }
 
     void Start()
     {
         Init();
-
-        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
-        if (_poolManager == null)
-        {
-            Debug.LogError("Pool Manager is NULL");
-        }
     }
 
     void Init()
     {
-        transform.position = new Vector2(0, 0);
+        transform.position = Vector2.zero;
         _baseSpeed = _speed;
         _currentAmmo = _maxAmmo;
         _lives = _maxLives;
@@ -131,41 +156,30 @@ public class Player : MonoBehaviour
             _engineFires[i].SetActive(false);
         }
 
-        _spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
-        if (_spawnManager == null)
-        {
-            Debug.LogError("SpawnManager is NULL");
-        }
-
-        _uIManager = GameObject.Find("Canvas").GetComponent<UIManager>();
-        if (_uIManager == null)
-        {
-            Debug.LogError("UIManager is NULL");
-        }
-
-        _uIManager.UpdateScore(_score);
-        _uIManager.UpdateLivesImage(_lives);
-        _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
-        _uIManager.UpdateAmmo(_currentAmmo, _maxAmmo);
-        _uIManager.UpdateMissile(_currentMissiles, _numberOfMissiles);
+        OnUpdateLives?.Invoke(_lives);
+        OnUpdateThuster?.Invoke(_elapsedTime, _thrusterBurnLength);
+        OnUpdateAmmo?.Invoke(_currentAmmo, _maxAmmo);
+        OnUpdateMissiles?.Invoke(_currentMissiles, _numberOfMissiles);
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab) && _isHomingMissileActive == true)
         {
-            int weaponType = _homingMissilePrefab.GetWeaponType();            
-            GameObject missile = _poolManager.GetInactiveWeapon(weaponType);
-            missile.transform.position = _spawnPoints[0].position;
-            missile.GetComponent<HomingMissile>().AssignEnemyTarget();
-            missile.SetActive(true);
-            _currentMissiles--;
-            if (_currentMissiles < 1)
+            int weaponType = _homingMissilePrefab.GetWeaponType();
+            GameObject missile = OnGetWeapon?.Invoke(weaponType);
+            if (missile != null)
             {
-                _currentMissiles = 0;
-                _isHomingMissileActive = false;
+                missile.transform.position = _spawnPoints[0].position;
+                missile.SetActive(true);
+                _currentMissiles--;
+                if (_currentMissiles < 1)
+                {
+                    _currentMissiles = 0;
+                    _isHomingMissileActive = false;
+                }
+                OnUpdateMissiles?.Invoke(_currentMissiles, _numberOfMissiles);
             }
-            _uIManager.UpdateMissile(_currentMissiles, _numberOfMissiles);
         }
 
         if (Input.GetKey(KeyCode.Space) && Time.time > _canFire && _currentAmmo > 0)
@@ -202,7 +216,7 @@ public class Player : MonoBehaviour
                 _speed = _baseSpeed;
             }
 
-            _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
+            OnUpdateThuster?.Invoke(_elapsedTime, _thrusterBurnLength);
         }
         else if (_isThrusterActive == false && _elapsedTime > 0)
         {
@@ -214,7 +228,7 @@ public class Player : MonoBehaviour
                 _isThrusterDown = false;
             }
 
-            _uIManager.UpdateThrusterBar(_elapsedTime, _thrusterBurnLength);
+            OnUpdateThuster?.Invoke(_elapsedTime, _thrusterBurnLength);
         }
 
         float hInput = Input.GetAxis("Horizontal");
@@ -277,31 +291,40 @@ public class Player : MonoBehaviour
         {
             int weaponType = _laserPrefab.GetWeaponType();
             for (int i = 0; i < _spawnPoints.Length; i++)
-            {                
-                weapon = _poolManager.GetInactiveLaser(weaponType);
-                weapon.transform.position = _spawnPoints[i].position;
-                weapon.SetActive(true);
+            {
+                weapon = OnGetLaser?.Invoke(weaponType);
+                if (weapon != null)
+                {
+                    weapon.transform.position = _spawnPoints[i].position;
+                    weapon.SetActive(true); 
+                }
             }
         }
         else if (_isOmniShotActive == true)
         {
             int weaponType = _omniShotPrefab.GetWeaponType();
-            GameObject omniShot = _poolManager.GetInactiveWeapon(weaponType);
-            omniShot.transform.position = transform.position;
-            omniShot.SetActive(true);
+            weapon = OnGetWeapon?.Invoke(weaponType);
+            if (weapon != null)
+            {
+                weapon.transform.position = transform.position;
+                weapon.SetActive(true); 
+            }
         }
         else
         {
             int weaponType = _laserPrefab.GetWeaponType();
-            weapon = _poolManager.GetInactiveLaser(weaponType);
-            weapon.transform.position = _spawnPoints[0].position;
-            weapon.SetActive(true);
-            _currentAmmo--;
-            _uIManager.UpdateAmmo(_currentAmmo, _maxAmmo);
+            weapon = OnGetLaser?.Invoke(weaponType);
+            if (weapon != null)
+            {
+                weapon.transform.position = _spawnPoints[0].position;
+                weapon.SetActive(true);
+                _currentAmmo--;
+                OnUpdateAmmo?.Invoke(_currentAmmo, _maxAmmo);
+            }
         }
     }
 
-    public void ChangeLives(int amount = -1)
+    public void ChangeLives(int amount)
     {
         if (_isShieldActive == true && amount < 0)
         {
@@ -320,11 +343,7 @@ public class Player : MonoBehaviour
 
         if (amount < 0)
         {
-            CameraShake cameraShake = Camera.main.GetComponent<CameraShake>();
-            if (cameraShake != null)
-            {
-                cameraShake.ShakeCamera();
-            }
+            OnCameraShake?.Invoke();
         }
 
         _lives += amount;
@@ -338,7 +357,7 @@ public class Player : MonoBehaviour
             _lives = 0;
         }
 
-        _uIManager.UpdateLivesImage(_lives);
+        OnUpdateLives?.Invoke(_lives);
 
         if (_lives == 3)
         {
@@ -373,18 +392,13 @@ public class Player : MonoBehaviour
         else if (_lives < 1)
         {
             int explosionID = _explosionPrefab.GetExplosionID();
-            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            GameObject explosion = OnGetExplosion?.Invoke(explosionID);
             explosion.transform.position = transform.position;
             explosion.SetActive(true);
-            _spawnManager.StopSpawning();
+            OnRemoveTarget?.Invoke(gameObject);
+            OnDeath?.Invoke();
             gameObject.SetActive(false);
         }
-    }
-
-    public void AddScore()
-    {
-        _score += 10;
-        _uIManager.UpdateScore(_score);
     }
 
     public void TripleShotActivate()
@@ -473,21 +487,21 @@ public class Player : MonoBehaviour
 
     public void PlayClip(AudioClip clip)
     {
-        AudioManager.Instance.PlaySFX(clip);
+        OnPlaySFX(clip);
     }
 
     public void ChangeAmmo()
     {
         _currentAmmo = _maxAmmo;
 
-        _uIManager.UpdateAmmo(_currentAmmo, _maxAmmo);
+        OnUpdateAmmo?.Invoke(_currentAmmo, _maxAmmo);
     }
 
     public void ActivateHomingMissiles()
     {
         _isHomingMissileActive = true;
         _currentMissiles = _numberOfMissiles;
-        _uIManager.UpdateMissile(_currentMissiles, _numberOfMissiles);
+        OnUpdateMissiles?.Invoke(_currentMissiles, _numberOfMissiles);
     }
 
     public void OmniShotActivate()
@@ -545,5 +559,15 @@ public class Player : MonoBehaviour
 
         _negativeEffectDuration = _powerUpDuration;
         _isNegativeEffectActive = false;
+    }
+
+    private GameObject GivePlayerObj()
+    {
+        return this.gameObject;
+    }
+
+    private void GameWon()
+    {
+        this.enabled = false;
     }
 }

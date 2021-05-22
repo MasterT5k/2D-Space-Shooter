@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class MineLayingEnemy : Enemy
 {
@@ -12,10 +13,12 @@ public class MineLayingEnemy : Enemy
         float fireRate = Random.Range(_minFireDelay, _maxFireDelay);
         _canFire = Time.time + fireRate;
 
-        //Instantiate(_minePrefab, _laserSpawns[0].position, Quaternion.identity);
         int weaponType = _minePrefab.GetWeaponType();
-        GameObject mine = _poolManager.GetInactiveWeapon(weaponType);
-        mine.transform.position = _laserSpawns[0].position;
-        mine.SetActive(true);
+        GameObject mine = GetWeapon(weaponType);
+        if (mine != null)
+        {
+            mine.transform.position = _laserSpawns[0].position;
+            mine.SetActive(true); 
+        }
     }
 }

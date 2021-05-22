@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class SpawnManager : MonoBehaviour
 {
@@ -16,10 +18,13 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private float _enemySpawnDelay = 5f;
     [SerializeField]
+    private List<GameObject> _activeEnemyList = new List<GameObject>();
+    [SerializeField]
     private Wave[] _waves = null;
     private int _currentWave = -1;
     private int _numberOfWaves;
     private int _currentEnemy = -1;
+    private int _enemiesActive;
     [SerializeField]
     private GameObject _bossPrefab = null;
     [SerializeField]
@@ -49,49 +54,59 @@ public class SpawnManager : MonoBehaviour
     private bool _stopSpawningPowerUps = false;
     private bool _countEnemies = false;
     private bool _isBossActive = false;
-    private UIManager _uIManager = null;
-    private PoolManager _poolManager = null;
+
+    public static event Action OnNextWave;
+    public static event Action<int, int> OnUpdateWaves;
+    public static event Func<int, GameObject> OnGetEnemy;
+    public static event Func<int, GameObject> OnGetPowerUp;
+
+    void OnEnable()
+    {
+        Player.OnDeath += StopSpawning;
+        Asteroid.OnStartSpawning += StartSpawning;
+        HomingMissile.OnGetTargetList += GiveActiveEnemies;
+        Enemy.OnDestroyed += RemoveEnemy;
+        BeamEmitter.OnActivated += AddEnemy;
+        BeamEmitter.OnDestroyed += RemoveEnemy;
+        BossAI.OnActiveReactor += AddEnemy;
+        BossAI.OnDestroyed += StopSpawning;
+    }
+
+    void OnDisable()
+    {
+        Player.OnDeath -= StopSpawning;
+        Asteroid.OnStartSpawning -= StartSpawning;
+        HomingMissile.OnGetTargetList -= GiveActiveEnemies;
+        Enemy.OnDestroyed -= RemoveEnemy;
+        BeamEmitter.OnActivated -= AddEnemy;
+        BeamEmitter.OnDestroyed -= RemoveEnemy;
+        BossAI.OnActiveReactor -= AddEnemy;
+        BossAI.OnDestroyed -= StopSpawning;
+    }
 
     private void Start()
     {
-        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
-        if (_poolManager == null)
-        {
-            Debug.LogError("Pool Manager is NULL");
-        }
-
         _numberOfWaves = _waves.Length;
-
-        _uIManager = GameObject.Find("Canvas").GetComponent<UIManager>();
-        if (_uIManager == null)
-        {
-            Debug.LogError("UIManager is NULL");
-        }
-        else
-        {
-            _uIManager.UpdateWaves(_currentWave, _numberOfWaves);
-        }
+        OnUpdateWaves?.Invoke(_currentWave, _numberOfWaves);
     }
 
     private void Update()
     {
         if (_countEnemies == true)
         {
-            int numberOfEnemies = _enemyContainer.childCount;
-            if (numberOfEnemies <= 0 && _isBossActive == true)
+            if (_enemiesActive <= 0 && _isBossActive == true)
             {
                 _countEnemies = false;
                 _stopSpawningPowerUps = true;
-                _uIManager.ActivateWinText();
             }
-            else if (numberOfEnemies <= 0 && _isFinalWave == false)
+            else if (_enemiesActive <= 0 && _isFinalWave == false)
             {
                 _countEnemies = false;
                 _stopSpawningPowerUps = true;
                 StopCoroutine("SpawnPowerUpRoutine");
                 StartSpawning();
             }
-            else if (numberOfEnemies <= 0 && _isFinalWave == true)
+            else if (_enemiesActive <= 0 && _isFinalWave == true)
             {
                 StartCoroutine(SpawnBossRoutine());
                 _isFinalWave = false;
@@ -116,8 +131,8 @@ public class SpawnManager : MonoBehaviour
         _stopSpawningPowerUps = false;
         StartCoroutine(SpawnWaveRoutine(_currentWave));
         StartCoroutine("SpawnPowerUpRoutine");
-        _uIManager.UpdateWaves(_currentWave + 1, _numberOfWaves);
-        _uIManager.FlashNextWave();
+        OnUpdateWaves?.Invoke(_currentWave + 1, _numberOfWaves);
+        OnNextWave?.Invoke();
     }
 
     IEnumerator SpawnWaveRoutine(int waveNumber)
@@ -139,12 +154,13 @@ public class SpawnManager : MonoBehaviour
             Vector2 spawnLocation = new Vector2(randomX, _spawnPoint.position.y);
             EnemyType enemyType = wave.enemiesToSpawn[_currentEnemy];
             int enemyID = enemyType.EnemyClass.GetEnemyID();
-            GameObject enemyObj = _poolManager.GetInactiveEnemy(enemyID);
+            GameObject enemyObj = OnGetEnemy?.Invoke(enemyID);
             if (enemyObj != null)
             {
                 enemyObj.transform.SetParent(_enemyContainer);
                 enemyObj.transform.position = spawnLocation;
                 enemyObj.SetActive(true);
+                AddEnemy(enemyObj);
             }
             yield return new WaitForSeconds(_enemySpawnDelay);
         }
@@ -235,10 +251,27 @@ public class SpawnManager : MonoBehaviour
                 }
             }
 
-            selectedPowerUp = _poolManager.GetInactivePowerUp(powerUpType);
+            selectedPowerUp = OnGetPowerUp?.Invoke(powerUpType);
             return selectedPowerUp;
 
         }
         return null;
+    }
+
+    private List<GameObject> GiveActiveEnemies()
+    {
+        return _activeEnemyList;
+    }
+
+    private void AddEnemy(GameObject enemy)
+    {
+        _enemiesActive++;
+        _activeEnemyList.Add(enemy);
+    }
+
+    private void RemoveEnemy(GameObject enemy)
+    {
+        _enemiesActive--;
+        _activeEnemyList.Remove(enemy);
     }
 }

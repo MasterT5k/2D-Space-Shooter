@@ -193,8 +193,9 @@ MonoBehaviour:
   _horizontalLimits: 8
   _spawnStartDelay: 3
   _enemySpawnDelay: 1
+  _activeEnemyList: []
   _waves:
-  - {fileID: 11400000, guid: ba6f80da514cbab42bb5a7b83857af19, type: 2}
+  - {fileID: 11400000, guid: e68c20302fc10ec44bcf2a6cc7368492, type: 2}
   - {fileID: 11400000, guid: 5f8e48d3aa89e544b9d3d8d731005705, type: 2}
   _bossPrefab: {fileID: 6322401580400202073, guid: 5ab4b1b58d3281e4881a9cfd7f798195,
     type: 3}
@@ -1085,7 +1086,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 360600235}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -1158,7 +1159,7 @@ MonoBehaviour:
   _speedMultiplier: 2
   _homingMissilePrefab: {fileID: -2845852065296726430, guid: 327545c60a32db1479f1b82312713a2d,
     type: 3}
-  _numberOfMissiles: 4
+  _numberOfMissiles: 5
   _fireDelayIncrease: 2
   _maxLives: 3
   _explosionPrefab: {fileID: 409704734865190724, guid: 181d814d6627ea94289f126f0223c65c,
@@ -2478,9 +2479,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1596311495}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: LoadMainMenu
+      - m_Target: {fileID: 987248873}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: MainMenuButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2749,9 +2750,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1596311495}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: QuitGame
+      - m_Target: {fileID: 987248873}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: QuitGameButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4674,9 +4675,9 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 419413625}
-        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: SetSFXVolume
+      - m_Target: {fileID: 987248873}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: UpdateSFXVolume
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5075,9 +5076,9 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 419413625}
-        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: SetMasterVolume
+      - m_Target: {fileID: 987248873}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: UpdateMasterVolume
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5207,9 +5208,9 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 419413625}
-        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: SetMusicVolume
+      - m_Target: {fileID: 987248873}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: UpdateMusicVolume
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5498,7 +5499,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1596311494}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 550.1689, y: 45.188007, z: -46.4655}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

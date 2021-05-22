@@ -73,7 +73,7 @@ public class AggressiveEnemy : Enemy
 
     private float GetDistanceFromPlayer()
     {
-        if (_player != null)
+        if (_player.gameObject.activeInHierarchy == true)
         {
             float playerYAxis = _player.transform.position.y;
             float enemyYAxis = transform.position.y;

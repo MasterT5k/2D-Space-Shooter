@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,22 +31,37 @@ public class BossAI : MonoBehaviour
     private Transform[] _missileSpawnPoints = null;
 
     [SerializeField]
-    private List<BeamEmitter> _destroyObj = new List<BeamEmitter>();
+    private List<BeamEmitter> _beamEmitterList = new List<BeamEmitter>();
     private bool _beamsActive = false;
+    [SerializeField]
+    private int _activeEmitters;
 
     [Header("Health Settings")]
     [SerializeField]
     private int _reactorHealth = 4;
     private int _currentReactorHealth;
     [SerializeField]
+    private int _scoreValue = 100;
+    [SerializeField]
     private GameObject _reactorCoreObj = null;
     [SerializeField]
     private Explosion _explosionPrefab = null;
+    [SerializeField]
+    private GameObject _coverShield = null;
 
     private bool _inFinalStage = false;
 
     private Player _player = null;
-    private PoolManager _poolManager = null;
+
+    public static event Action<GameObject> OnActiveReactor;
+    public static event Action OnDestroyed;
+    public static event Action<int> OnScored;
+    public static event Action<AudioClip> OnPlayLoopingSFX;
+    public static event Action OnStopLoopingSFX;
+    public static event Func<int, GameObject> OnGetWeapon;
+    public static event Func<int, GameObject> OnGetExplosion;
+    public static event Func<GameObject> OnGetPlayerObject;
+    public static event Func<Player> OnGetPlayerScript;
 
     private EnemyState _currentState = EnemyState.Idle;
     private enum EnemyState
@@ -55,33 +71,33 @@ public class BossAI : MonoBehaviour
         Idle
     }
 
+    private void OnEnable()
+    {
+        _coverShield.SetActive(true);
+        _activeEmitters = 0;
+        if (_beamEmitterList.Count > 0)
+        {
+            for (int i = 0; i < _beamEmitterList.Count; i++)
+            {
+                _activeEmitters++;
+                _beamEmitterList[i].gameObject.SetActive(true);
+            }
+        }
+    }
+
     void Start()
     {
-        GameObject playerObj = GameObject.Find("Player");
+        GameObject playerObj = OnGetPlayerObject?.Invoke();
         
         if (playerObj != null)
         {
-            _player = playerObj.GetComponent<Player>();
+            _player = OnGetPlayerScript?.Invoke();
         }
-        else
+        
+        if (playerObj.activeInHierarchy == false)
         {
             Debug.Log("Player is dead!");
             gameObject.SetActive(false);
-        }
-
-        if (_destroyObj.Count > 0)
-        {
-            _destroyObj.RemoveAll(empty => empty == null);
-            for (int i = 0; i < _destroyObj.Count; i++)
-            {
-                _destroyObj[i].gameObject.SetActive(true);
-            }
-        }
-
-        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
-        if (_poolManager == null)
-        {
-            Debug.LogError("Pool Manager is NULL");
         }
 
         _currentReactorHealth = _reactorHealth;
@@ -90,12 +106,27 @@ public class BossAI : MonoBehaviour
 
     void Update()
     {
+        if (_activeEmitters <= 0)
+        {
+            OnStopLoopingSFX?.Invoke();
+            _inFinalStage = true;
+        }
+        else
+        {
+            CheckEmitters();
+        }
+
         if (_inPosition == false)
         {
             transform.position = Vector2.MoveTowards(transform.position, _finalPosition, _speed * Time.deltaTime);
             if (transform.position == (Vector3)_finalPosition)
             {
+                for (int i = 0; i < _beamEmitterList.Count; i++)
+                {
+                    _beamEmitterList[i].ActivateCollider();
+                }
                 _inPosition = true;
+                _coverShield.SetActive(false);
                 StartCoroutine(BossFightCoroutine());
             }
         }
@@ -121,37 +152,52 @@ public class BossAI : MonoBehaviour
         }
     }
 
+    private void CheckEmitters()
+    {
+        int activeEmitters = 0;
+        for (int i = 0; i < _beamEmitterList.Count; i++)
+        {
+            bool active = _beamEmitterList[i].gameObject.activeInHierarchy;
+            if (active == true)
+            {
+                activeEmitters++;
+            }
+        }
+
+        _activeEmitters = activeEmitters;
+    }
+
     void LaserBeams(bool turnOn)
     {
-        _destroyObj.RemoveAll(empty => empty == null);
-        if (_destroyObj.Count <= 0)
+
+        if (_activeEmitters <= 0)
         {
-            AudioManager.Instance.StopLoopingSFX();
+            OnStopLoopingSFX?.Invoke();
             _inFinalStage = true;
             return;
         }
 
         if (turnOn == true)
         {
-            AudioManager.Instance.PlayLoopingSFX(_laserBeamClip);
-            for (int i = 0; i < _destroyObj.Count; i++)
+            OnPlayLoopingSFX?.Invoke(_laserBeamClip);
+            for (int i = 0; i < _beamEmitterList.Count; i++)
             {
-                GameObject obj = _destroyObj[i].gameObject;
+                GameObject obj = _beamEmitterList[i].gameObject;
                 if (obj.activeInHierarchy == true)
                 {
-                    _destroyObj[i].LaserBeams(turnOn);
+                    _beamEmitterList[i].LaserBeams(turnOn);
                 }
             }
         }
         else
         {
-            AudioManager.Instance.StopLoopingSFX();
-            for (int i = 0; i < _destroyObj.Count; i++)
+            OnStopLoopingSFX?.Invoke();
+            for (int i = 0; i < _beamEmitterList.Count; i++)
             {
-                GameObject obj = _destroyObj[i].gameObject;
+                GameObject obj = _beamEmitterList[i].gameObject;
                 if (obj.activeInHierarchy == true)
                 {
-                    _destroyObj[i].LaserBeams(turnOn);
+                    _beamEmitterList[i].LaserBeams(turnOn);
                 }
             }
         }
@@ -167,12 +213,15 @@ public class BossAI : MonoBehaviour
             for (int i = 0; i < _missileSpawnPoints.Length; i++)
             {
                 int weaponType = _missilePrefab.GetWeaponType();
-                missile = _poolManager.GetInactiveWeapon(weaponType);
-                missile.transform.position = _missileSpawnPoints[0].position;
-                missile.SetActive(true);
-                if (_player != null)
+                missile = OnGetWeapon?.Invoke(weaponType);
+                if (missile != null)
                 {
-                    missile.GetComponent<HomingMissile>().AssignEnemyMissile(_player.transform); 
+                    missile.transform.position = _missileSpawnPoints[i].position;
+                    missile.SetActive(true);
+                    if (_player != null)
+                    {
+                        missile.GetComponent<HomingMissile>().AssignEnemyMissile(_player.transform);
+                    } 
                 }
             } 
         }
@@ -180,12 +229,15 @@ public class BossAI : MonoBehaviour
         {
             GameObject missile;
             int weaponType = _missilePrefab.GetWeaponType();
-            missile = _poolManager.GetInactiveWeapon(weaponType);
-            missile.transform.position = _missileSpawnPoints[0].position;
-            missile.SetActive(true);
-            if (_player != null)
+            missile = OnGetWeapon?.Invoke(weaponType);
+            if (missile != null)
             {
-                missile.GetComponent<HomingMissile>().AssignEnemyMissile(_player.transform);
+                missile.transform.position = _missileSpawnPoints[0].position;
+                missile.SetActive(true);
+                if (_player != null)
+                {
+                    missile.GetComponent<HomingMissile>().AssignEnemyMissile(_player.transform);
+                }
             }
         }
     }
@@ -214,6 +266,7 @@ public class BossAI : MonoBehaviour
     void FinalStage()
     {
         _currentState = EnemyState.FiringMissiles;
+        OnActiveReactor?.Invoke(_reactorCoreObj);
         _reactorCoreObj.SetActive(true);
     }
 
@@ -222,8 +275,10 @@ public class BossAI : MonoBehaviour
         _currentReactorHealth += amount;
         if (_currentReactorHealth <= 0)
         {
+            OnScored?.Invoke(_scoreValue);
+            OnDestroyed?.Invoke();
             int explosionID = _explosionPrefab.GetExplosionID();
-            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
+            GameObject explosion = OnGetExplosion?.Invoke(explosionID);
             explosion.transform.position = transform.position;
             explosion.SetActive(true);
             gameObject.SetActive(false);

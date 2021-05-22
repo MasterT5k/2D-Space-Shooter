@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -45,19 +46,53 @@ public class UIManager : MonoBehaviour
     private bool _pausePanelOpen = false;
     private bool _panelAnimating = false;
 
-    private GameManager _gameManager = null;
+    public static event Action OnPauseGame;
+    public static event Action OnQuitGame;
+    public static event Action OnLoadMainMenu;
+    public static event Action<float> OnSetMasterVolume;
+    public static event Action<float> OnSetMusicVolume;
+    public static event Action<float> OnSetSFXVolume;
+    public static event Func<float> OnGetMasterVolume;
+    public static event Func<float> OnGetMusicVolume;
+    public static event Func<float> OnGetSFXVolume;
+
+    private void OnEnable()
+    {
+        SpawnManager.OnUpdateWaves += UpdateWaves;
+        SpawnManager.OnNextWave += FlashNextWave;
+
+        Player.OnUpdateAmmo += UpdateAmmo;
+        Player.OnUpdateLives += UpdateLivesImage;
+        Player.OnUpdateMissiles += UpdateMissile;
+        Player.OnUpdateThuster += UpdateThrusterBar;
+
+        BossAI.OnDestroyed += ActivateWinText;
+
+        GameManager.OnUpdateScore += UpdateScore;
+        GameManager.OnPauseMenu += AnimatePausePanel;
+    }
+
+    private void OnDisable()
+    {
+        SpawnManager.OnUpdateWaves -= UpdateWaves;
+        SpawnManager.OnNextWave -= FlashNextWave;
+
+        Player.OnUpdateAmmo -= UpdateAmmo;
+        Player.OnUpdateLives -= UpdateLivesImage;
+        Player.OnUpdateMissiles -= UpdateMissile;
+        Player.OnUpdateThuster -= UpdateThrusterBar;
+
+        BossAI.OnDestroyed -= ActivateWinText;
+
+        GameManager.OnUpdateScore -= UpdateScore;
+        GameManager.OnPauseMenu -= AnimatePausePanel;
+    }
 
     void Start()
     {
-        _gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
-        if (_gameManager == null)
-        {
-            Debug.Log("Game Manager is NULL");
-        }
-
-        _masterVolumeSlider.value = AudioManager.Instance.GetMasterVolume();
-        _musicVolumeSlider.value = AudioManager.Instance.GetMusicVolume();
-        _sFXVolumeSlider.value = AudioManager.Instance.GetSFXVolume();
+        _masterVolumeSlider.value = (float)(OnGetMasterVolume?.Invoke());
+        _musicVolumeSlider.value = (float)(OnGetMusicVolume?.Invoke());
+        _sFXVolumeSlider.value = (float)(OnGetSFXVolume?.Invoke());
         _pausePanelGroup.alpha = 0;
         _pausePanelGroup.blocksRaycasts = false;
         _pausePanelGroup.interactable = false;
@@ -75,7 +110,7 @@ public class UIManager : MonoBehaviour
             if (_pausePanelGroup.blocksRaycasts == false)
             {
                 _pausePanelGroup.blocksRaycasts = true;
-                _gameManager.PauseGame();
+                OnPauseGame?.Invoke();
             }
 
             _pausePanelGroup.alpha += _fadeMultiplier * Time.unscaledDeltaTime;
@@ -97,7 +132,7 @@ public class UIManager : MonoBehaviour
                 _pausePanelGroup.interactable = false;
                 _panelAnimating = false;
                 _pausePanelOpen = false;
-                _gameManager.PauseGame();
+                OnPauseGame?.Invoke();
             }
         }
     }
@@ -113,8 +148,7 @@ public class UIManager : MonoBehaviour
         if (lives == 0)
         {
             StartCoroutine(ContinuousFlickerRoutine(_gameOverText));
-            _restartText.gameObject.SetActive(true);
-            _gameManager.GameOver();
+            _restartText.gameObject.SetActive(true); 
         }
     }
 
@@ -161,7 +195,16 @@ public class UIManager : MonoBehaviour
     {
         StartCoroutine(ContinuousFlickerRoutine(_winText));
         _restartText.gameObject.SetActive(true);
-        _gameManager.GameOver();
+    }
+
+    public void MainMenuButton()
+    {
+        OnLoadMainMenu?.Invoke();
+    }
+
+    public void QuitGameButton()
+    {
+        OnQuitGame?.Invoke();
     }
 
     IEnumerator ContinuousFlickerRoutine(Text textToFlicker)
@@ -186,5 +229,20 @@ public class UIManager : MonoBehaviour
             yield return new WaitForSeconds(_flickerDelay);
             counter++;
         }
+    }
+
+    public void UpdateMasterVolume(float volume)
+    {
+        OnSetMasterVolume?.Invoke(volume);
+    }
+
+    public void UpdateMusicVolume(float volume)
+    {
+        OnSetMusicVolume?.Invoke(volume);
+    }
+
+    public void UpdateSFXVolume(float volume)
+    {
+        OnSetSFXVolume?.Invoke(volume);
     }
 }

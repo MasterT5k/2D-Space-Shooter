@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +15,10 @@ public class PowerUp : MonoBehaviour
     private int _healAmount = 1;
     private Transform _playerTransform = null;
     private bool _isMovingToPlayer = false;
+
+    public static event Action<AudioClip> OnPlaySFX;
+    public static event Func<GameObject> OnGetPlayerObj;
+    public static event Func<Player> OnGetPlayerScript;
 
     [SerializeField]
     private PowerUpType _powerUpType = PowerUpType.TripleShot;
@@ -36,7 +41,11 @@ public class PowerUp : MonoBehaviour
 
     void Start()
     {
-        _playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        GameObject playerObj = OnGetPlayerObj?.Invoke();
+        if (playerObj != null)
+        {
+            _playerTransform = playerObj.transform;
+        }
     }
 
     void Update()
@@ -50,9 +59,13 @@ public class PowerUp : MonoBehaviour
                 gameObject.SetActive(false);
             }
         }
-        else
+        else if (_playerTransform != null)
         {
             transform.position = Vector3.MoveTowards(transform.position, _playerTransform.position, _speed * Time.deltaTime);
+        }
+        else
+        {
+            _isMovingToPlayer = false;
         }
     }
 
@@ -60,10 +73,10 @@ public class PowerUp : MonoBehaviour
     {
         if (other.tag == "Player")
         {
-            Player player = other.gameObject.GetComponent<Player>();
+            Player player = OnGetPlayerScript?.Invoke();
             if (player != null)
             {
-                player.PlayClip(_powerUpClip);
+                OnPlaySFX?.Invoke(_powerUpClip);
                 switch (_powerUpType)
                 {
                     case PowerUpType.TripleShot:
@@ -88,7 +101,7 @@ public class PowerUp : MonoBehaviour
                         player.OmniShotActivate();
                         break;
                     case PowerUpType.Negative:
-                        player.ChangeLives();
+                        player.ChangeLives(-_healAmount);
                         player.NegativeEffectActivate();
                         break;
                     default:

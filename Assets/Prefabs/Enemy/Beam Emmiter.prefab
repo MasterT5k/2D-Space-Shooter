@@ -145,6 +145,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c03c93f21252ff94394da4b1c2928dd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _damage: 1
 --- !u!1 &5784638712248777726
 GameObject:
   m_ObjectHideFlags: 0
@@ -216,7 +217,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -881872441
   m_SortingLayer: 2
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Sprite: {fileID: 3625043607559282579, guid: 0d267bc78a0864eb48358689b29ed20a,
     type: 3}
   m_Color: {r: 0.6509434, g: 0.6509434, b: 0.6509434, a: 1}
@@ -257,8 +258,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5784638712323363886}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.4, z: 0}
-  m_LocalScale: {x: 0.22940452, y: 0.22940452, z: 0.2294045}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5784638712248777697}
   m_Father: {fileID: 0}
@@ -303,7 +304,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -881872441
   m_SortingLayer: 2
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Sprite: {fileID: -2413806693520163455, guid: 4adeaf2d2b1c7417e89f026626d8264f,
     type: 3}
   m_Color: {r: 0.6509434, g: 0.6509434, b: 0.6509434, a: 1}
@@ -388,7 +389,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d44e82becfadbd4fb7098b586f756ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _startingHealth: 1
+  _startingHealth: 3
+  _scoreValue: 20
   _beamObj: {fileID: 4821090586576695328}
   _explosionPrefab: {fileID: 409704734865190724, guid: 181d814d6627ea94289f126f0223c65c,
     type: 3}

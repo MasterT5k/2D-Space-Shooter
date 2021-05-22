@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,16 +7,59 @@ using UnityEditor;
 
 public class GameManager : MonoBehaviour
 {
+    private int _score;
     private bool _isGameOver = false;
     private bool _isPaused = false;
-    private UIManager _uIManager = null;
+    private GameObject _playerObj = null;
+    private Player _playerScript = null;
+
+    public static event Action OnPauseMenu;
+    public static event Action<int> OnUpdateScore;
+    public static event Func<GameObject> OnGetPlayerObj;
+
+    void OnEnable()
+    {
+        Player.OnDeath += GameOver;
+        Enemy.OnScored += ChangeScore;
+        Enemy.OnGetPlayerScript += GivePlayerScript;
+        Mine.OnScored += ChangeScore;
+        UIManager.OnPauseGame += PauseGame;
+        UIManager.OnLoadMainMenu += LoadMainMenu;
+        UIManager.OnQuitGame += QuitGame;
+        BossAI.OnGetPlayerObject += GivePlayerObj;
+        BossAI.OnGetPlayerScript += GivePlayerScript;
+        BossAI.OnDestroyed += GameOver;
+        BossAI.OnScored += ChangeScore;
+        PowerUp.OnGetPlayerObj += GivePlayerObj;
+        PowerUp.OnGetPlayerScript += GivePlayerScript;
+        BeamEmitter.OnScored += ChangeScore;
+    }
+
+    void OnDisable()
+    {
+        Player.OnDeath -= GameOver;
+        Enemy.OnScored -= ChangeScore;
+        Enemy.OnGetPlayerScript -= GivePlayerScript;
+        Mine.OnScored -= ChangeScore;
+        UIManager.OnPauseGame -= PauseGame;
+        UIManager.OnLoadMainMenu -= LoadMainMenu;
+        UIManager.OnQuitGame -= QuitGame;
+        BossAI.OnGetPlayerObject -= GivePlayerObj;
+        BossAI.OnGetPlayerScript -= GivePlayerScript;
+        BossAI.OnDestroyed -= GameOver;
+        BossAI.OnScored -= ChangeScore;
+        PowerUp.OnGetPlayerObj -= GivePlayerObj;
+        PowerUp.OnGetPlayerScript -= GivePlayerScript;
+        BeamEmitter.OnScored -= ChangeScore;
+    }
 
     void Start()
     {
-        _uIManager = GameObject.Find("Canvas").GetComponent<UIManager>();
-        if (_uIManager == null)
+        OnUpdateScore?.Invoke(_score);
+        _playerObj = OnGetPlayerObj?.Invoke();
+        if (_playerObj != null)
         {
-            Debug.LogError("UIManager is NULL");
+            _playerScript = _playerObj.GetComponent<Player>();
         }
     }
 
@@ -29,7 +73,7 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            _uIManager.AnimatePausePanel();
+            OnPauseMenu?.Invoke();
         }
     }
 
@@ -65,5 +109,29 @@ public class GameManager : MonoBehaviour
         #else
             Application.Quit();
         #endif
+    }
+
+    private GameObject GivePlayerObj()
+    {
+        if (_playerObj != null)
+        {
+            return _playerObj;
+        }
+        return null;
+    }
+
+    private Player GivePlayerScript()
+    {
+        if (_playerScript != null)
+        {
+            return _playerScript;
+        }
+        return null;
+    }
+
+    private void ChangeScore(int amount)
+    {
+        _score += amount;
+        OnUpdateScore?.Invoke(_score);
     }
 }

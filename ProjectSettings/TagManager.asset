@@ -10,6 +10,7 @@ TagManager:
   - Omni Shot
   - Power Up
   - Mine
+  - Boss
   layers:
   - Default
   - TransparentFX

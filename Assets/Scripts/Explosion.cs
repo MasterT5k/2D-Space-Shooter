@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,11 +15,12 @@ public class Explosion : MonoBehaviour
     private Animator _anim = null;
     private bool _isReused = false;
 
+    public static event Action<AudioClip> OnPlaySFX;
+
     private void OnEnable()
     {
         if (_isReused == true)
-        {
-            AudioManager.Instance.PlaySFX(_explosionClip);
+        {          
             StartCoroutine(DeactivateRoutine());
         }
     }
@@ -35,13 +37,13 @@ public class Explosion : MonoBehaviour
     void Start()
     {
         _anim = GetComponent<Animator>();
-        AudioManager.Instance.PlaySFX(_explosionClip);
         StartCoroutine(DeactivateRoutine());
         _isReused = true;
     }
 
     IEnumerator DeactivateRoutine()
     {
+        OnPlaySFX?.Invoke(_explosionClip);
         _anim.SetTrigger("Explode");
         yield return new WaitForSeconds(_destroyDelay);
         gameObject.SetActive(false);

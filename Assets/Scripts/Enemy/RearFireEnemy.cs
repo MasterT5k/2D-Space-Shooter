@@ -36,7 +36,12 @@ public class RearFireEnemy : Enemy
 
             PlayClip(_laserClip);
 
-            Instantiate(_laserPrefab, _rearLaserSpawn.position, Quaternion.identity);
+            GameObject enemyLaser = GetLaser();
+            if (enemyLaser != null)
+            {
+                enemyLaser.transform.position = _rearLaserSpawn.position;
+                enemyLaser.SetActive(true);
+            }
         }
     }
 

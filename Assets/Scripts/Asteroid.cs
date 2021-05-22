@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,23 +11,9 @@ public class Asteroid : MonoBehaviour
     private Explosion _explosionPrefab = null;
     [SerializeField]
     private float _destroyDelay = 0.5f;
-    private SpawnManager _spawnManager = null;
-    private PoolManager _poolManager = null;
 
-    void Start()
-    {
-        _poolManager = GameObject.Find("Pool Manager").GetComponent<PoolManager>();
-        if (_poolManager == null)
-        {
-            Debug.LogError("Pool Manager is NULL");
-        }
-
-        _spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
-        if (_spawnManager == null)
-        {
-            Debug.Log("SpawnManager is NULL");
-        }
-    }
+    public static event Action OnStartSpawning;
+    public static event Func<int, GameObject> OnGetExplosion;
 
     void Update()
     {
@@ -39,10 +26,13 @@ public class Asteroid : MonoBehaviour
         {
             other.gameObject.SetActive(false);
             int explosionID = _explosionPrefab.GetExplosionID();
-            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
-            explosion.transform.position = transform.position;
-            explosion.SetActive(true);
-            _spawnManager.StartSpawning();
+            GameObject explosion = OnGetExplosion?.Invoke(explosionID);
+            if (explosion != null)
+            {
+                explosion.transform.position = transform.position;
+                explosion.SetActive(true);
+            }
+            OnStartSpawning?.Invoke();
             gameObject.GetComponent<Collider2D>().enabled = false;
             Destroy(gameObject, _destroyDelay);
         }
@@ -50,10 +40,13 @@ public class Asteroid : MonoBehaviour
         if (other.tag == "Omni Shot")
         {
             int explosionID = _explosionPrefab.GetExplosionID();
-            GameObject explosion = _poolManager.GetInactiveExplosion(explosionID);
-            explosion.transform.position = transform.position;
-            explosion.SetActive(true);
-            _spawnManager.StartSpawning();
+            GameObject explosion = OnGetExplosion?.Invoke(explosionID);
+            if (explosion != null)
+            {
+                explosion.transform.position = transform.position;
+                explosion.SetActive(true);
+            }
+            OnStartSpawning?.Invoke();
             gameObject.GetComponent<Collider2D>().enabled = false;
             Destroy(gameObject, _destroyDelay);
         }
