@@ -487,7 +487,7 @@ public class Player : MonoBehaviour
 
     public void PlayClip(AudioClip clip)
     {
-        OnPlaySFX(clip);
+        OnPlaySFX?.Invoke(clip);
     }
 
     public void ChangeAmmo()

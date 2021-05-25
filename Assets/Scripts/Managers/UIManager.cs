@@ -124,12 +124,15 @@ public class UIManager : MonoBehaviour
         }
         else if (_pausePanelOpen == true && _panelAnimating == true)
         {
+            if (_pausePanelGroup.interactable == true)
+            {
+                _pausePanelGroup.interactable = false;
+            }
             _pausePanelGroup.alpha -= _fadeMultiplier * Time.unscaledDeltaTime;
             if (_pausePanelGroup.alpha <= 0f)
             {
                 _pausePanelGroup.alpha = 0f;
                 _pausePanelGroup.blocksRaycasts = false;
-                _pausePanelGroup.interactable = false;
                 _panelAnimating = false;
                 _pausePanelOpen = false;
                 OnPauseGame?.Invoke();

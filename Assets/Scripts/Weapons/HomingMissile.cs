@@ -41,7 +41,7 @@ public class HomingMissile : MonoBehaviour
         if (_isReused == true)
         {
             int explosionID = _explosionPrefab.GetExplosionID();
-            GameObject explosion = OnGetExplosion(explosionID);
+            GameObject explosion = OnGetExplosion?.Invoke(explosionID);
             if (explosion != null)
             {
                 explosion.transform.position = transform.position;

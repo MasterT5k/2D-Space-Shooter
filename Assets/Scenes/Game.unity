@@ -195,8 +195,10 @@ MonoBehaviour:
   _enemySpawnDelay: 1
   _activeEnemyList: []
   _waves:
-  - {fileID: 11400000, guid: e68c20302fc10ec44bcf2a6cc7368492, type: 2}
-  - {fileID: 11400000, guid: 5f8e48d3aa89e544b9d3d8d731005705, type: 2}
+  - {fileID: 11400000, guid: ba6f80da514cbab42bb5a7b83857af19, type: 2}
+  - {fileID: 11400000, guid: f3f2f5eed2768d14babd5aafbd478acf, type: 2}
+  - {fileID: 11400000, guid: 999c377089f63c44a8f72ff3bca0bb07, type: 2}
+  - {fileID: 11400000, guid: 4efb1f077e684a643a0b7b839dbee5f2, type: 2}
   _bossPrefab: {fileID: 6322401580400202073, guid: 5ab4b1b58d3281e4881a9cfd7f798195,
     type: 3}
   _bossSpawnPoint: {fileID: 1722948782}

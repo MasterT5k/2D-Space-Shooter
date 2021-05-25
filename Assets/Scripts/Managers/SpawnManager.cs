@@ -157,7 +157,6 @@ public class SpawnManager : MonoBehaviour
             GameObject enemyObj = OnGetEnemy?.Invoke(enemyID);
             if (enemyObj != null)
             {
-                enemyObj.transform.SetParent(_enemyContainer);
                 enemyObj.transform.position = spawnLocation;
                 enemyObj.SetActive(true);
                 AddEnemy(enemyObj);
